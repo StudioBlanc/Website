@@ -13,16 +13,54 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #F6F3EC; /* Match the off-white color from your image */
+            background-color: #F6F3EC;
+            overflow: hidden; /* Prevents scrollbars */
         }
+        
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
         img {
             max-width: 100%;
-            max-height: 100vh;
+            max-height: 90vh;
             display: block;
+            cursor: pointer;
+            object-fit: contain; /* Maintains aspect ratio */
+        }
+        
+        a {
+            display: contents;
+            text-decoration: none;
+        }
+        
+        /* Media query for mobile devices */
+        @media (max-width: 768px) {
+            img {
+                max-width: 95%; /* Slightly larger on small screens */
+                max-height: 80vh;
+            }
+        }
+        
+        /* Media query for very small screens */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <img src="Homepage.jpg" alt="BLANC - COMING SOON">
+    <div class="container">
+        <a href="mailto:info@studioblanc.art">
+            <img src="Homepage.jpg" alt="BLANC - COMING SOON">
+        </a>
+    </div>
 </body>
 </html>
