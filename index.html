@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLANC</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="Favicon.png" type="image/png">
+    <link rel="shortcut icon" href="Favicon.png" type="image/png">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="BLANC - Contemporary art studio coming soon">
+    <meta name="keywords" content="art, studio, blanc, contemporary art">
+    <meta property="og:title" content="BLANC">
+    <meta property="og:description" content="Contemporary art studio opening soon">
+    <meta property="og:image" content="https://studioblanc.art/Homepage.jpg">
+    <meta property="og:url" content="https://studioblanc.art">
+    
     <style>
         body, html {
             margin: 0;
@@ -11,21 +24,23 @@
             height: 100%;
             width: 100%;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: #F6F3EC;
             overflow: hidden;
+            font-family: Arial, sans-serif;
         }
         
         .container {
             display: flex;
             justify-content: center;
             align-items: center;
+            flex: 1;
             width: 100%;
-            height: 100%;
+            position: relative;
             padding: 20px;
             box-sizing: border-box;
-            position: relative;
         }
         
         /* Loading state management */
@@ -41,7 +56,7 @@
             align-items: center;
             opacity: 1;
             transition: opacity 0.5s ease-out;
-            z-index: 10; /* Place above other elements */
+            z-index: 10;
         }
         
         .loader {
@@ -53,13 +68,13 @@
             animation: spin 1s linear infinite;
         }
         
-        img {
+        img.main-img {
             max-width: 75%;
             max-height: 67.5vh;
             display: block;
             cursor: pointer;
             object-fit: contain;
-            opacity: 0; /* Start invisible */
+            opacity: 0;
             transition: opacity 0.5s ease-in;
         }
         
@@ -69,16 +84,40 @@
         
         .loader-hidden {
             opacity: 0;
-            pointer-events: none; /* Important: Allows clicks to pass through */
+            pointer-events: none;
         }
         
-        a {
-            display: inline-flex; /* Changed from contents to inline-flex */
+        a.email-link {
+            display: inline-flex;
             justify-content: center;
             align-items: center;
             text-decoration: none;
             position: relative;
-            z-index: 5; /* Ensure link is above page elements */
+            z-index: 5;
+        }
+        
+        /* Social Media Footer */
+        .social-footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0 25px 0;
+            width: 100%;
+            z-index: 20;
+        }
+        
+        .social-icon {
+            width: 25px;
+            height: 25px;
+            margin: 0 15px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            color: #333;
+        }
+        
+        .social-icon:hover {
+            opacity: 1;
+            transform: scale(1.1);
         }
         
         @keyframes spin {
@@ -86,17 +125,40 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Media query for mobile devices */
+        /* Fade-in animation for social icons */
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+            opacity: 0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 0.7; }
+        }
+        
+        /* Media queries */
         @media (max-width: 768px) {
-            img {
+            img.main-img {
                 max-width: 71.25%;
                 max-height: 60vh;
+            }
+            
+            .social-icon {
+                width: 22px;
+                height: 22px;
+                margin: 0 12px;
             }
         }
         
         @media (max-width: 480px) {
             .container {
                 padding: 15px;
+            }
+            
+            .social-icon {
+                width: 20px;
+                height: 20px;
+                margin: 0 10px;
             }
         }
     </style>
@@ -106,8 +168,23 @@
         <div class="loading-container" id="loader">
             <div class="loader"></div>
         </div>
-        <a href="mailto:info@studioblanc.art" id="email-link">
-            <img src="Homepage.jpg" alt="BLANC - COMING SOON" id="main-image" onload="imageLoaded()">
+        <a href="mailto:info@studioblanc.art" id="email-link" class="email-link" title="Click to email us">
+            <img src="Homepage.webp" alt="BLANC - Contemporary Art Studio - Coming Soon" id="main-image" class="main-img" onload="imageLoaded()">
+        </a>
+    </div>
+    
+    <div class="social-footer">
+        <a href="https://www.instagram.com/studioblanc.art" target="_blank" title="Follow us on Instagram" aria-label="Instagram">
+            <!-- Instagram SVG Icon -->
+            <svg class="social-icon" id="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                <path fill="currentColor" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
+            </svg>
+        </a>
+        <a href="https://www.behance.net/studioblanc1" target="_blank" title="Follow us on Behance" aria-label="Behance">
+            <!-- Behance SVG Icon -->
+            <svg class="social-icon" id="behance-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                <path fill="currentColor" d="M232 237.2c31.8-15.2 48.4-38.2 48.4-74 0-70.6-52.6-87.8-113.3-87.8H0v354.4h171.8c64.4 0 124.9-30.9 124.9-102.9 0-44.5-21.1-77.4-64.7-89.7zM77.9 135.9H151c28.1 0 53.4 7.9 53.4 40.5 0 30.1-19.7 42.2-47.5 42.2h-79v-82.7zm83.3 233.7H77.9V272h84.9c34.3 0 56 14.3 56 50.6 0 35.8-25.9 47-57.6 47zm358.5-240.7H376V94h143.7v34.9zM576 305.2c0-75.9-44.4-139.2-124.9-139.2-78.2 0-131.3 58.8-131.3 135.8 0 79.9 50.3 134.7 131.3 134.7 61.3 0 101-27.6 120.1-86.3H509c-6.7 21.9-34.3 33.5-55.7 33.5-41.3 0-63-24.2-63-65.3h185.1c.3-4.2.6-8.7.6-13.2zM390.4 274c2.3-33.7 24.7-54.8 58.5-54.8 35.4 0 53.2 20.8 56.2 54.8H390.4z"/>
+            </svg>
         </a>
     </div>
 
@@ -120,10 +197,13 @@
             // Make sure the email link is clickable
             document.getElementById('email-link').style.zIndex = "20";
             
-            // For debugging - check if clicking image shows in console
-            document.getElementById('main-image').addEventListener('click', function() {
-                console.log('Image clicked');
-            });
+            // Fade in social icons after image loads
+            setTimeout(function() {
+                document.getElementById('instagram-icon').classList.add('fade-in');
+                setTimeout(function() {
+                    document.getElementById('behance-icon').classList.add('fade-in');
+                }, 200);
+            }, 500);
         }
     </script>
 </body>
