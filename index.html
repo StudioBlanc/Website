@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLANC</title>
     
+    <!-- Security -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' https://plausible.io 'unsafe-inline'; connect-src 'self' https://plausible.io; font-src 'self'">
+    
     <!-- Favicon -->
     <link rel="icon" href="Favicon.png" type="image/png">
     <link rel="shortcut icon" href="Favicon.png" type="image/png">
@@ -16,6 +19,9 @@
     <meta property="og:description" content="Contemporary art studio opening soon">
     <meta property="og:image" content="https://studioblanc.art/Homepage.webp">
     <meta property="og:url" content="https://studioblanc.art">
+    
+    <!-- Analytics -->
+    <script defer data-domain="studioblanc.art" src="https://plausible.io/js/script.js"></script>
     
     <style>
         body, html {
@@ -68,7 +74,13 @@
             animation: spin 1s linear infinite;
         }
         
-        img.main-img {
+        picture {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .main-img {
             max-width: 75%;
             max-height: 67.5vh;
             display: block;
@@ -87,7 +99,7 @@
             pointer-events: none;
         }
         
-        a.email-link {
+        .email-link {
             display: inline-flex;
             justify-content: center;
             align-items: center;
@@ -138,7 +150,7 @@
         
         /* Media queries */
         @media (max-width: 768px) {
-            img.main-img {
+            .main-img {
                 max-width: 71.25%;
                 max-height: 60vh;
             }
@@ -169,7 +181,12 @@
             <div class="loader"></div>
         </div>
         <a href="mailto:info@studioblanc.art" id="email-link" class="email-link" title="Click to email us">
-            <img src="Homepage.webp" alt="BLANC - Contemporary Art Studio - Coming Soon" id="main-image" class="main-img" onload="imageLoaded()">
+            <!-- Using picture element for better image format support -->
+            <picture>
+                <source srcset="Homepage.webp" type="image/webp">
+                <!-- Fallback to jpg if webp is not supported -->
+                <img src="Homepage.jpg" alt="BLANC - Contemporary Art Studio - Coming Soon" id="main-image" class="main-img" onload="imageLoaded()">
+            </picture>
         </a>
     </div>
     
@@ -190,21 +207,4 @@
 
     <script>
         function imageLoaded() {
-            // Once image is loaded, show it and hide the loader
-            document.getElementById('main-image').classList.add('img-visible');
-            document.getElementById('loader').classList.add('loader-hidden');
-            
-            // Make sure the email link is clickable
-            document.getElementById('email-link').style.zIndex = "20";
-            
-            // Fade in social icons after image loads
-            setTimeout(function() {
-                document.getElementById('instagram-icon').classList.add('fade-in');
-                setTimeout(function() {
-                    document.getElementById('behance-icon').classList.add('fade-in');
-                }, 200);
-            }, 500);
-        }
-    </script>
-</body>
-</html>
+            // Once image is loaded, sh
