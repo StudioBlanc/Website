@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLANC</title>
     
-    <!-- Security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' https://plausible.io 'unsafe-inline'; connect-src 'self' https://plausible.io; font-src 'self'">
-    
     <!-- Favicon -->
     <link rel="icon" href="Favicon.png" type="image/png">
     <link rel="shortcut icon" href="Favicon.png" type="image/png">
@@ -17,7 +14,7 @@
     <meta name="keywords" content="art, studio, blanc, contemporary art">
     <meta property="og:title" content="BLANC">
     <meta property="og:description" content="Contemporary art studio opening soon">
-    <meta property="og:image" content="https://studioblanc.art/Homepage.webp">
+    <meta property="og:image" content="https://studioblanc.art/Homepage.jpg">
     <meta property="og:url" content="https://studioblanc.art">
     
     <!-- Analytics -->
@@ -74,24 +71,12 @@
             animation: spin 1s linear infinite;
         }
         
-        picture {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
         .main-img {
             max-width: 75%;
             max-height: 67.5vh;
             display: block;
             cursor: pointer;
             object-fit: contain;
-            opacity: 0;
-            transition: opacity 0.5s ease-in;
-        }
-        
-        .img-visible {
-            opacity: 1;
         }
         
         .loader-hidden {
@@ -137,17 +122,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Fade-in animation for social icons */
-        .fade-in {
-            animation: fadeIn 1s ease forwards;
-            opacity: 0;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 0.7; }
-        }
-        
         /* Media queries */
         @media (max-width: 768px) {
             .main-img {
@@ -181,12 +155,7 @@
             <div class="loader"></div>
         </div>
         <a href="mailto:info@studioblanc.art" id="email-link" class="email-link" title="Click to email us">
-            <!-- Using picture element for better image format support -->
-            <picture>
-                <source srcset="Homepage.webp" type="image/webp">
-                <!-- Fallback to jpg if webp is not supported -->
-                <img src="Homepage.jpg" alt="BLANC - Contemporary Art Studio - Coming Soon" id="main-image" class="main-img" onload="imageLoaded()">
-            </picture>
+            <img src="Homepage.jpg" alt="BLANC - Contemporary Art Studio - Coming Soon" id="main-image" class="main-img" onload="hideLoader()">
         </a>
     </div>
     
@@ -206,5 +175,16 @@
     </div>
 
     <script>
-        function imageLoaded() {
-            // Once image is loaded, sh
+        // Simple function to hide the loader when image loads
+        function hideLoader() {
+            document.getElementById('loader').classList.add('loader-hidden');
+            document.getElementById('email-link').style.zIndex = "20";
+        }
+        
+        // Backup - hide loader after 3 seconds regardless
+        setTimeout(function() {
+            hideLoader();
+        }, 3000);
+    </script>
+</body>
+</html>
