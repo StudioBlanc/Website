@@ -14,7 +14,7 @@
             justify-content: center;
             align-items: center;
             background-color: #F6F3EC;
-            overflow: hidden; /* Prevents scrollbars */
+            overflow: hidden;
         }
         
         .container {
@@ -25,14 +25,49 @@
             height: 100%;
             padding: 20px;
             box-sizing: border-box;
+            position: relative;
+        }
+        
+        /* Loading state management */
+        .loading-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #F6F3EC; /* Match page background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid transparent;
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
         
         img {
-            max-width: 75%; /* Reduced by 25% from original 100% */
-            max-height: 67.5vh; /* Reduced by 25% from original 90vh */
+            max-width: 75%;
+            max-height: 67.5vh;
             display: block;
             cursor: pointer;
-            object-fit: contain; /* Maintains aspect ratio */
+            object-fit: contain;
+            opacity: 0; /* Start invisible */
+            transition: opacity 0.5s ease-in;
+        }
+        
+        .img-visible {
+            opacity: 1;
+        }
+        
+        .loader-hidden {
+            opacity: 0;
         }
         
         a {
@@ -40,15 +75,19 @@
             text-decoration: none;
         }
         
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         /* Media query for mobile devices */
         @media (max-width: 768px) {
             img {
-                max-width: 71.25%; /* Reduced by 25% from original 95% */
-                max-height: 60vh; /* Reduced by 25% from original 80vh */
+                max-width: 71.25%;
+                max-height: 60vh;
             }
         }
         
-        /* Media query for very small screens */
         @media (max-width: 480px) {
             .container {
                 padding: 15px;
@@ -58,9 +97,20 @@
 </head>
 <body>
     <div class="container">
+        <div class="loading-container" id="loader">
+            <div class="loader"></div>
+        </div>
         <a href="mailto:info@studioblanc.art">
-            <img src="Homepage.jpg" alt="BLANC - COMING SOON">
+            <img src="Homepage.jpg" alt="BLANC - COMING SOON" id="main-image" onload="imageLoaded()">
         </a>
     </div>
+
+    <script>
+        function imageLoaded() {
+            // Once image is loaded, show it and hide the loader
+            document.getElementById('main-image').classList.add('img-visible');
+            document.getElementById('loader').classList.add('loader-hidden');
+        }
+    </script>
 </body>
 </html>
