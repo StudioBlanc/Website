@@ -35,12 +35,13 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #F6F3EC; /* Match page background */
+            background-color: #F6F3EC;
             display: flex;
             justify-content: center;
             align-items: center;
             opacity: 1;
             transition: opacity 0.5s ease-out;
+            z-index: 10; /* Place above other elements */
         }
         
         .loader {
@@ -68,11 +69,16 @@
         
         .loader-hidden {
             opacity: 0;
+            pointer-events: none; /* Important: Allows clicks to pass through */
         }
         
         a {
-            display: contents;
+            display: inline-flex; /* Changed from contents to inline-flex */
+            justify-content: center;
+            align-items: center;
             text-decoration: none;
+            position: relative;
+            z-index: 5; /* Ensure link is above page elements */
         }
         
         @keyframes spin {
@@ -100,7 +106,7 @@
         <div class="loading-container" id="loader">
             <div class="loader"></div>
         </div>
-        <a href="mailto:info@studioblanc.art">
+        <a href="mailto:info@studioblanc.art" id="email-link">
             <img src="Homepage.jpg" alt="BLANC - COMING SOON" id="main-image" onload="imageLoaded()">
         </a>
     </div>
@@ -110,6 +116,14 @@
             // Once image is loaded, show it and hide the loader
             document.getElementById('main-image').classList.add('img-visible');
             document.getElementById('loader').classList.add('loader-hidden');
+            
+            // Make sure the email link is clickable
+            document.getElementById('email-link').style.zIndex = "20";
+            
+            // For debugging - check if clicking image shows in console
+            document.getElementById('main-image').addEventListener('click', function() {
+                console.log('Image clicked');
+            });
         }
     </script>
 </body>
