@@ -134,7 +134,7 @@
             z-index: 5;
         }
         
-        /* Beehiiv Email Collection Form */
+        /* Beehiiv Iframe Container */
         .notify-container {
             margin-top: 40px;
             opacity: 0;
@@ -151,70 +151,19 @@
             transform: translateY(0);
         }
         
-        .beehiiv-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-        }
-        
-        .email-input {
-            padding: 12px 20px;
+        .beehiiv-container {
             width: 100%;
             max-width: 350px;
-            border: 1px solid #ddd;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            box-sizing: border-box;
-            text-align: center;
+            margin: 0 auto;
         }
         
-        .email-input:focus {
-            border-color: #333;
-            box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
-        }
-        
-        .email-input::placeholder {
-            color: #999;
-            font-size: 16px;
-        }
-        
-        .notify-button {
-            padding: 12px 30px;
-            background-color: #333;
-            color: white;
+        .beehiiv-iframe {
+            width: 100%;
+            height: 52px;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            font-weight: 500;
-            min-width: 200px;
-        }
-        
-        .notify-button:hover {
-            background-color: #000;
-            transform: translateY(-1px);
-        }
-        
-        .notify-button:active {
-            transform: translateY(0);
-        }
-        
-        /* Success message */
-        .success-message {
-            display: none;
-            background-color: rgba(76, 175, 80, 0.1);
-            border: 1px solid #4CAF50;
-            color: #2E7D32;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 14px;
+            border-radius: 8px !important;
+            background-color: transparent;
+            margin: 0;
         }
         
         /* Social Media Footer */
@@ -275,10 +224,6 @@
                 padding: 0 15px;
                 max-width: 350px;
             }
-            
-            .email-input {
-                font-size: 16px; /* Prevents zoom on iOS */
-            }
         }
         
         @media (max-width: 480px) {
@@ -292,13 +237,8 @@
                 margin: 0 10px;
             }
             
-            .email-input {
+            .beehiiv-container {
                 max-width: 100%;
-            }
-            
-            .notify-button {
-                width: 100%;
-                max-width: 280px;
             }
         }
     </style>
@@ -315,32 +255,18 @@
             <img src="Homepage.jpg" alt="BLANC - Boutique CGI & VFX Studio - Coming Soon" id="main-image" class="main-img" loading="eager" onload="hideLoader()">
         </a>
         
-        <!-- Beehiiv Email Collection Form -->
+        <!-- Beehiiv Email Collection Iframe -->
         <div class="notify-container" id="notify-container">
-            <form 
-                class="beehiiv-form" 
-                action="https://embeds.beehiiv.com/156c1064-daaa-4ee2-8734-c05745e55caa" 
-                method="post" 
-                target="_blank"
-                onsubmit="return handleSubmit(event)"
-            >
-                <input 
-                    type="email" 
-                    name="email"
-                    class="email-input" 
-                    id="email-input" 
-                    placeholder="Enter your email" 
-                    required
-                >
-                <input type="hidden" name="utm_source" value="website">
-                <input type="hidden" name="utm_medium" value="organic">
-                <button type="submit" class="notify-button">
-                    Notify me when you launch
-                </button>
-                <div id="success-message" class="success-message">
-                    Thank you! We'll notify you when Studio Blanc launches.
-                </div>
-            </form>
+            <div class="beehiiv-container">
+                <iframe 
+                    src="https://embeds.beehiiv.com/6950dba3-fb7e-4225-92c5-b0306ba1b7b1?slim=true" 
+                    data-test-id="beehiiv-embed" 
+                    class="beehiiv-iframe"
+                    frameborder="0" 
+                    scrolling="no"
+                    onload="trackIframeLoad()"
+                ></iframe>
+            </div>
         </div>
     </div>
     
@@ -383,24 +309,27 @@
             }
         }
         
-        // Handle form submission
-        function handleSubmit(event) {
-            // Show success message
-            document.getElementById('success-message').style.display = 'block';
+        // Track when beehiiv iframe loads
+        function trackIframeLoad() {
+            console.log('Beehiiv form loaded successfully');
             
-            // Clear the email input
-            setTimeout(function() {
-                document.getElementById('email-input').value = '';
-            }, 1000);
-            
-            // Track in analytics
+            // Track iframe load in analytics if needed
             if (typeof window.plausible === 'function') {
-                window.plausible('signup');
+                window.plausible('beehiiv_form_loaded');
             }
-            
-            // Let the form submit normally to beehiiv
-            return true;
         }
+        
+        // Listen for messages from beehiiv iframe (optional - for tracking submissions)
+        window.addEventListener('message', function(event) {
+            if (event.origin === 'https://embeds.beehiiv.com') {
+                // Track successful submissions
+                if (event.data && event.data.type === 'beehiiv_success') {
+                    if (typeof window.plausible === 'function') {
+                        window.plausible('signup');
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
