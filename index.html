@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Performance Optimizations -->
     <link rel="preconnect" href="https://plausible.io">
     <link rel="preload" href="Homepage.jpg" as="image">
     
-    <!-- Security -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' https://plausible.io /_vercel/ 'unsafe-inline'; connect-src 'self' https://plausible.io; form-action 'self' mailto:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' https://plausible.io /_vercel/ 'unsafe-inline'; connect-src 'self' https://plausible.io; form-action 'self' mailto:; frame-src https://embeds.beehiiv.com;">
     
-    <!-- SEO Meta Tags -->
     <title>Studio Blanc – Boutique CGI & VFX Studio</title>
     <meta name="description" content="Studio Blanc is a boutique CGI studio delivering big-agency quality motion graphics, VFX, and immersive digital experiences (AR/VR) with a personal touch.">
     <meta name="keywords" content="CGI studio, VFX, motion graphics, 3D animation, AR/VR, digital experiences">
@@ -19,7 +16,6 @@
     <link rel="canonical" href="https://studioblanc.art/">
     <meta name="theme-color" content="#F6F3EC">
     
-    <!-- Open Graph / Facebook / LinkedIn -->
     <meta property="og:title" content="Studio Blanc – Boutique CGI & VFX Studio">
     <meta property="og:description" content="Studio Blanc delivers big-agency quality CGI, VFX, and 3D animation with a boutique, personal approach. Specializing in Unreal Engine visuals, AR/VR, and digital world-building.">
     <meta property="og:url" content="https://studioblanc.art/">
@@ -27,24 +23,20 @@
     <meta property="og:image" content="https://studioblanc.art/Homepage.jpg">
     <meta property="og:site_name" content="Studio Blanc">
     
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Studio Blanc – Boutique CGI & VFX Studio">
     <meta name="twitter:description" content="Studio Blanc delivers big-agency quality CGI, VFX, and 3D animation with a boutique, personal approach.">
     <meta name="twitter:image" content="https://studioblanc.art/Homepage.jpg">
     
-    <!-- Favicon -->
     <link rel="icon" href="Favicon.png" type="image/png">
     <link rel="shortcut icon" href="Favicon.png" type="image/png">
     
-    <!-- PWA Support -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Studio Blanc">
     <link rel="apple-touch-icon" href="Favicon.png">
     
-    <!-- JSON-LD Structured Data (helps search engines understand your site better) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -65,7 +57,6 @@
     }
     </script>
     
-    <!-- Analytics -->
     <script defer data-domain="studioblanc.art" src="https://plausible.io/js/script.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
     
@@ -97,7 +88,6 @@
             box-sizing: border-box;
         }
         
-        /* Loading state management */
         .loading-container {
             position: absolute;
             top: 0;
@@ -141,10 +131,10 @@
             align-items: center;
             text-decoration: none;
             position: relative;
-            z-index: 5;
+            z-index: 5; /* Will be changed to 20 by JS after load */
         }
         
-        /* Notification Form */
+        /* Notification Form Container Styling */
         .notify-container {
             margin-top: 30px;
             opacity: 0;
@@ -152,7 +142,7 @@
             transition: opacity 0.8s ease, transform 0.8s ease;
             text-align: center;
             width: 100%;
-            max-width: 400px;
+            max-width: 400px; /* This will constrain the iframe's container */
         }
         
         .notify-visible {
@@ -160,45 +150,11 @@
             transform: translateY(0);
         }
         
-        .notify-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
+        /* These specific form input/button styles are less relevant if iframe styling is different */
+        /* .notify-form { ... } */
+        /* .notify-input { ... } */
+        /* .notify-button { ... } */
         
-        .notify-input {
-            padding: 10px 15px;
-            width: 100%;
-            max-width: 300px;
-            border: 1px solid #ddd;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 4px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        
-        .notify-input:focus {
-            border-color: #000;
-        }
-        
-        .notify-button {
-            padding: 10px 20px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        .notify-button:hover {
-            background-color: #000;
-        }
-        
-        /* Social Media Footer */
         .social-footer {
             display: flex;
             justify-content: center;
@@ -239,7 +195,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Media queries */
         @media (max-width: 768px) {
             .main-img {
                 max-width: 71.25%;
@@ -267,15 +222,10 @@
                 height: 20px;
                 margin: 0 10px;
             }
-            
-            .notify-input, .notify-button {
-                width: 100%;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Hidden H1 for SEO -->
     <h1 class="visually-hidden">Studio Blanc - Boutique CGI & VFX Studio Specializing in Motion Graphics</h1>
     
     <div class="container">
@@ -286,24 +236,24 @@
             <img src="Homepage.jpg" alt="BLANC - Boutique CGI & VFX Studio - Coming Soon" id="main-image" class="main-img" loading="eager" onload="hideLoader()">
         </a>
         
-        <!-- Notify Me Form -->
         <div class="notify-container" id="notify-container">
-            <form class="notify-form" id="notify-form" onsubmit="return sendNotification(event)">
-                <input type="email" class="notify-input" id="notify-email" placeholder="Enter your email" required>
-                <button type="submit" class="notify-button">Notify me when you launch</button>
-            </form>
+            <iframe src="https://embeds.beehiiv.com/6950dba3-fb7e-4225-92c5-b0306ba1b7b1?slim=true" 
+                    data-test-id="beehiiv-embed" 
+                    height="52" 
+                    frameborder="0" 
+                    scrolling="no" 
+                    style="margin: 0 auto; display: block; border-radius: 0px !important; background-color: transparent; width: 100%; max-width: 350px;">
+                    </iframe>
         </div>
     </div>
     
     <div class="social-footer">
         <a href="https://www.instagram.com/studioblanc.art" target="_blank" title="Follow us on Instagram" aria-label="Instagram" onclick="trackSocialClick('instagram')">
-            <!-- Instagram SVG Icon -->
             <svg class="social-icon" id="instagram-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                 <path fill="currentColor" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
             </svg>
         </a>
         <a href="https://www.behance.net/studioblanc1" target="_blank" title="Follow us on Behance" aria-label="Behance" onclick="trackSocialClick('behance')">
-            <!-- Behance SVG Icon -->
             <svg class="social-icon" id="behance-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
                 <path fill="currentColor" d="M232 237.2c31.8-15.2 48.4-38.2 48.4-74 0-70.6-52.6-87.8-113.3-87.8H0v354.4h171.8c64.4 0 124.9-30.9 124.9-102.9 0-44.5-21.1-77.4-64.7-89.7zM77.9 135.9H151c28.1 0 53.4 7.9 53.4 40.5 0 30.1-19.7 42.2-47.5 42.2h-79v-82.7zm83.3 233.7H77.9V272h84.9c34.3 0 56 14.3 56 50.6 0 35.8-25.9 47-57.6 47zm358.5-240.7H376V94h143.7v34.9zM576 305.2c0-75.9-44.4-139.2-124.9-139.2-78.2 0-131.3 58.8-131.3 135.8 0 79.9 50.3 134.7 131.3 134.7 61.3 0 101-27.6 120.1-86.3H509c-6.7 21.9-34.3 33.5-55.7 33.5-41.3 0-63-24.2-63-65.3h185.1c.3-4.2.6-8.7.6-13.2zM390.4 274c2.3-33.7 24.7-54.8 58.5-54.8 35.4 0 53.2 20.8 56.2 54.8H390.4z"/>
             </svg>
@@ -314,7 +264,7 @@
         // Show loader and elements when page loads
         function hideLoader() {
             document.getElementById('loader').classList.add('loader-hidden');
-            document.getElementById('email-link').style.zIndex = "20";
+            document.getElementById('email-link').style.zIndex = "20"; // Ensure image link is clickable on top
             
             // Show notify form after image loads
             setTimeout(function() {
@@ -324,17 +274,17 @@
         
         // Backup - hide loader after 3 seconds regardless
         setTimeout(function() {
-            hideLoader();
+            if (!document.getElementById('loader').classList.contains('loader-hidden')) {
+                 hideLoader();
+            }
         }, 3000);
         
         // Analytics tracking for social clicks
         function trackSocialClick(platform) {
-            // For Plausible Analytics
             if (typeof window.plausible === 'function') {
                 window.plausible('socialClick', { props: { platform: platform } });
             }
             
-            // For Vercel Analytics
             try {
                 if (typeof window.va === 'function') {
                     window.va('event', {
@@ -347,22 +297,22 @@
             }
         }
         
-        // Form submission handler
-        function sendNotification(e) {
-            e.preventDefault();
+        // Form submission handler for Beehiiv (Commented out as iframe handles submission)
+        /*
+        function handleBeehiivSignup(event) {
+            // This function is not used when using the Beehiiv iframe embed for form submission.
+            // Kept for reference if you switch back to a custom HTML form.
+            // const email = document.getElementById('notify-email').value;
             
-            const email = document.getElementById('notify-email').value;
-            
-            // Track notification signup in analytics
             if (typeof window.plausible === 'function') {
                 window.plausible('signup');
             }
             
-            // Open mailto with the email
-            window.location.href = `mailto:info@studioblanc.art?subject=Notify me on launch&body=Please notify me when Studio Blanc launches! My email is: ${email}`;
-            
-            return false;
+            // If this were for a custom HTML form posting to Beehiiv,
+            // returning true would allow the native form submission.
+            return true; 
         }
+        */
     </script>
 </body>
 </html>
