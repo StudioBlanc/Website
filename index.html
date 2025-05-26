@@ -317,14 +317,23 @@
         
         <!-- Beehiiv Email Collection Form -->
         <div class="notify-container" id="notify-container">
-            <form class="beehiiv-form" id="beehiiv-form" onsubmit="return submitToBeehiiv(event)">
+            <form 
+                class="beehiiv-form" 
+                action="https://embeds.beehiiv.com/156c1064-daaa-4ee2-8734-c05745e55caa" 
+                method="post" 
+                target="_blank"
+                onsubmit="return handleSubmit(event)"
+            >
                 <input 
                     type="email" 
+                    name="email"
                     class="email-input" 
                     id="email-input" 
                     placeholder="Enter your email" 
                     required
                 >
+                <input type="hidden" name="utm_source" value="website">
+                <input type="hidden" name="utm_medium" value="organic">
                 <button type="submit" class="notify-button">
                     Notify me when you launch
                 </button>
@@ -374,46 +383,23 @@
             }
         }
         
-        // Beehiiv form submission
-        function submitToBeehiiv(e) {
-            e.preventDefault();
+        // Handle form submission
+        function handleSubmit(event) {
+            // Show success message
+            document.getElementById('success-message').style.display = 'block';
             
-            const email = document.getElementById('email-input').value;
-            
-            // Replace with your actual beehiiv publication ID and endpoint
-            const beehiivEndpoint = 'https://embeds.beehiiv.com/156c1064-daaa-4ee2-8734-c05745e55caa/subscribe';
-            
-            // Submit to beehiiv
-            fetch(beehiivEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: email,
-                    utm_source: 'website',
-                    utm_medium: 'organic'
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Show success message
-                document.getElementById('success-message').style.display = 'block';
+            // Clear the email input
+            setTimeout(function() {
                 document.getElementById('email-input').value = '';
-                
-                // Track in analytics
-                if (typeof window.plausible === 'function') {
-                    window.plausible('signup');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Still show success to user (beehiiv sometimes has CORS issues)
-                document.getElementById('success-message').style.display = 'block';
-                document.getElementById('email-input').value = '';
-            });
+            }, 1000);
             
-            return false;
+            // Track in analytics
+            if (typeof window.plausible === 'function') {
+                window.plausible('signup');
+            }
+            
+            // Let the form submit normally to beehiiv
+            return true;
         }
     </script>
 </body>
