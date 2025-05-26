@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- Remove or update the CSP -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="..."> -->
+    
     <!-- Performance Optimizations -->
     <link rel="preconnect" href="https://plausible.io">
+    <link rel="preconnect" href="https://embeds.beehiiv.com">
     <link rel="preload" href="Homepage.jpg" as="image">
     
     <!-- SEO Meta Tags -->
@@ -312,24 +316,7 @@
         // Track when beehiiv iframe loads
         function trackIframeLoad() {
             console.log('Beehiiv form loaded successfully');
-            
-            // Track iframe load in analytics if needed
-            if (typeof window.plausible === 'function') {
-                window.plausible('beehiiv_form_loaded');
-            }
         }
-        
-        // Listen for messages from beehiiv iframe (optional - for tracking submissions)
-        window.addEventListener('message', function(event) {
-            if (event.origin === 'https://embeds.beehiiv.com') {
-                // Track successful submissions
-                if (event.data && event.data.type === 'beehiiv_success') {
-                    if (typeof window.plausible === 'function') {
-                        window.plausible('signup');
-                    }
-                }
-            }
-        });
     </script>
 </body>
 </html>
