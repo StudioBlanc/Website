@@ -4,5 +4,10 @@
     { "source": "/private", "destination": "/api/private/index" },
     { "source": "/private/", "destination": "/api/private/index" },
     { "source": "/private/:path*", "destination": "/api/private/index" }
-  ]
+  ],
+  "functions": {
+    "api/private/index.js": {
+      "includeFiles": "private/index.html"
+    }
+  }
 }
