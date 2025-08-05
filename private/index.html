@@ -42,10 +42,14 @@
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">Studio Blanc — Private</div>
-    <div class="role"><span id="roleLabel">…</span></div>
-  </header>
+ <header>
+  <div class="brand">Studio Blanc — Private</div>
+  <div>
+    <span class="role" id="roleLabel">…</span>
+    <a class="btn" id="logoutBtn" href="/api/private/logout" style="margin-left:10px">Logout</a>
+  </div>
+</header>
+
 
   <main>
     <div id="err" class="error hidden"></div>
@@ -254,3 +258,4 @@
   </script>
 </body>
 </html>
+
