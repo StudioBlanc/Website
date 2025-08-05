@@ -1,7 +1,6 @@
 // api/private/me.js
 export const config = { runtime: 'nodejs' };
 
-// returns: 'admin' | 'client' | null
 function checkRole(req) {
   const header = req.headers.authorization || '';
   const [scheme, encoded] = header.split(' ');
