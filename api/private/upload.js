@@ -1,50 +1,54 @@
-// /api/private/upload.js
+// api/private/upload.js
 export const config = { runtime: 'nodejs' };
 import { handleUpload } from '@vercel/blob/client';
 
 function requireAdmin(req) {
-  const header = req.headers.get('authorization') || '';
+  const header = req.headers.authorization || '';
   const [scheme, encoded] = header.split(' ');
-  if (scheme !== 'Basic' || !encoded) {
-    return new Response('Forbidden', { status: 403 });
-  }
-  try {
-    const decoded = atob(encoded);
-    const i = decoded.indexOf(':');
-    const user = decoded.slice(0, i);
-    const pass = decoded.slice(i + 1);
-    const adminUser = (process.env.BASIC_AUTH_ADMIN_USER || '');
-    const adminPass = (process.env.BASIC_AUTH_ADMIN_PASS || '');
-    if (user !== adminUser || pass !== adminPass) {
-      return new Response('Forbidden', { status: 403 });
-    }
-    return null;
-  } catch {
-    return new Response('Forbidden', { status: 403 });
-  }
+  if (scheme !== 'Basic' || !encoded) return false;
+  const [user, pass] = Buffer.from(encoded, 'base64').toString().split(':');
+  return user === (process.env.BASIC_AUTH_ADMIN_USER || '') &&
+         pass === (process.env.BASIC_AUTH_ADMIN_PASS || '');
 }
 
-
-export default async function handler(request) {
-  const forbidden = requireAdmin(request);
-  if (forbidden) return forbidden;
-
-  if (request.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
+export default async function handler(req, res) {
+  if (!requireAdmin(req)) {
+    res.statusCode = 403; res.end('Forbidden'); return;
   }
-  const body = await request.json();
+  if (req.method !== 'POST') {
+    res.statusCode = 405; res.end('Method Not Allowed'); return;
+  }
+
+  // Read raw body and create a Fetch Request compatible with handleUpload
+  const chunks = [];
+  for await (const c of req) chunks.push(c);
+  const bodyStr = Buffer.concat(chunks).toString() || '{}';
+  const body = JSON.parse(bodyStr);
+
+  const request = new Request('https://example.com/api/private/upload', {
+    method: 'POST',
+    headers: { 'content-type': req.headers['content-type'] || 'application/json' }
+  });
+
   try {
     const json = await handleUpload({
       body,
       request,
-      onBeforeGenerateToken: async (pathname) => ({ addRandomSuffix: true }),
-      onUploadCompleted: async ({ blob }) => { console.log('Uploaded:', blob.url); }
+      onBeforeGenerateToken: async (pathname /*, clientPayload */) => ({
+        // allow any type, add random suffix server-side too
+        addRandomSuffix: true,
+        tokenPayload: JSON.stringify({ when: Date.now() }),
+      }),
+      onUploadCompleted: async ({ blob }) => {
+        console.log('Uploaded:', blob.url);
+      }
     });
-    return new Response(JSON.stringify(json), { status: 200, headers: { 'content-type': 'application/json' } });
+
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(json));
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err?.message || err) }), {
-      status: 400,
-      headers: { 'content-type': 'application/json' }
-    });
+    res.statusCode = 400;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({ error: String(err?.message || err) }));
   }
 }
