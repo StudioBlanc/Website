@@ -1,8 +1,8 @@
 {
-  "crons": [
-    {
-      "path": "/api/private/purge",
-      "schedule": "0 2 * * *"
-    }
+  "crons": [{ "path": "/api/private/purge", "schedule": "0 2 * * *" }],
+  "rewrites": [
+    { "source": "/private", "destination": "/api/private/index" },
+    { "source": "/private/", "destination": "/api/private/index" },
+    { "source": "/private/:path*", "destination": "/api/private/index" }
   ]
 }
