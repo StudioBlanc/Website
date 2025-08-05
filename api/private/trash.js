@@ -1,18 +1,29 @@
 // /api/private/trash.js
-// POST -> move to trash (create marker). DELETE -> restore (remove marker).
-// Node runtime to use @vercel/blob put()/del()
-export const config = { runtime: 'nodejs' };
+export const config = { runtime: 'nodejs' }; // uses Node to call put()/del()
 import { put, del, list } from '@vercel/blob';
 
 function requireAdmin(req) {
-  const cookies = req.headers.get('cookie') || '';
-  const m = (`; ${cookies}`).match(/;\s*sb_role=([^;]+)/);
-  const role = m ? decodeURIComponent(m[1]) : '';
-  if (role !== 'admin') {
+  const header = req.headers.get('authorization') || '';
+  const [scheme, encoded] = header.split(' ');
+  if (scheme !== 'Basic' || !encoded) {
     return new Response('Forbidden', { status: 403 });
   }
-  return null;
+  try {
+    const decoded = atob(encoded);
+    const i = decoded.indexOf(':');
+    const user = decoded.slice(0, i);
+    const pass = decoded.slice(i + 1);
+    const adminUser = (process.env.BASIC_AUTH_ADMIN_USER || '');
+    const adminPass = (process.env.BASIC_AUTH_ADMIN_PASS || '');
+    if (user !== adminUser || pass !== adminPass) {
+      return new Response('Forbidden', { status: 403 });
+    }
+    return null;
+  } catch {
+    return new Response('Forbidden', { status: 403 });
+  }
 }
+
 
 function markerPrefixFor(pathname) {
   return `trash-manifest/${encodeURIComponent(pathname)}__`;

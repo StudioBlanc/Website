@@ -2,7 +2,5 @@
   "name": "studio-blanc",
   "private": true,
   "type": "module",
-  "dependencies": {
-    "@vercel/blob": "^1.1.1"
-  }
+  "dependencies": { "@vercel/blob": "^1.1.1" }
 }

@@ -1,26 +1,37 @@
-// middleware.js
-// Role-aware Basic Auth with session cookie (sb_role: admin|client)
-import { NextResponse } from 'next/server';
+// middleware.js (framework-agnostic Routing Middleware)
+export const config = {
+  matcher: ['/private/:path*', '/api/private/:path*'],
+  runtime: 'edge',
+};
 
-export const config = { matcher: ['/private/:path*', '/api/private/:path*'] };
-
-function expected(u, p) {
-  if (!u || !p) return '';
-  return 'Basic ' + btoa(`${u}:${p}`);
+function parseBasicAuth(header) {
+  if (!header) return null;
+  const [scheme, encoded] = header.split(' ');
+  if (scheme !== 'Basic' || !encoded) return null;
+  try {
+    const decoded = atob(encoded);
+    const idx = decoded.indexOf(':');
+    if (idx === -1) return null;
+    return { user: decoded.slice(0, idx), pass: decoded.slice(idx + 1) };
+  } catch {
+    return null;
+  }
 }
 
-export default function middleware(req) {
-  const auth = req.headers.get('authorization') || '';
-  const isAdmin = auth === expected(process.env.BASIC_AUTH_ADMIN_USER, process.env.BASIC_AUTH_ADMIN_PASS);
-  const isClient = auth === expected(process.env.BASIC_AUTH_CLIENT_USER, process.env.BASIC_AUTH_CLIENT_PASS);
+export default function middleware(request) {
+  const auth = parseBasicAuth(request.headers.get('authorization') || '');
+  const adminUser = (process.env.BASIC_AUTH_ADMIN_USER || '');
+  const adminPass = (process.env.BASIC_AUTH_ADMIN_PASS || '');
+  const clientUser = (process.env.BASIC_AUTH_CLIENT_USER || '');
+  const clientPass = (process.env.BASIC_AUTH_CLIENT_PASS || '');
 
-  if (isAdmin || isClient) {
-    const res = NextResponse.next();
-    // short-lived cookie (12h); server still checks Basic Auth per request at the edge
-    res.cookies.set('sb_role', isAdmin ? 'admin' : 'client', {
-      httpOnly: true, secure: true, sameSite: 'Strict', path: '/', maxAge: 60 * 60 * 12
-    });
-    return res;
+  const ok =
+    auth &&
+    ((auth.user === adminUser && auth.pass === adminPass) ||
+     (auth.user === clientUser && auth.pass === clientPass));
+
+  if (ok) {
+    return; // continue
   }
 
   return new Response('Authentication required', {
