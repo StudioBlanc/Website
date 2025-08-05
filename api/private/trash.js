@@ -1,55 +1,43 @@
-// /api/private/trash.js
-export const config = { runtime: 'nodejs' }; // uses Node to call put()/del()
+// api/private/trash.js
+export const config = { runtime: 'nodejs' };
 import { put, del, list } from '@vercel/blob';
 
 function requireAdmin(req) {
-  const header = req.headers.get('authorization') || '';
+  const header = req.headers.authorization || '';
   const [scheme, encoded] = header.split(' ');
-  if (scheme !== 'Basic' || !encoded) {
-    return new Response('Forbidden', { status: 403 });
-  }
-  try {
-    const decoded = atob(encoded);
-    const i = decoded.indexOf(':');
-    const user = decoded.slice(0, i);
-    const pass = decoded.slice(i + 1);
-    const adminUser = (process.env.BASIC_AUTH_ADMIN_USER || '');
-    const adminPass = (process.env.BASIC_AUTH_ADMIN_PASS || '');
-    if (user !== adminUser || pass !== adminPass) {
-      return new Response('Forbidden', { status: 403 });
-    }
-    return null;
-  } catch {
-    return new Response('Forbidden', { status: 403 });
-  }
+  if (scheme !== 'Basic' || !encoded) return false;
+  const [user, pass] = Buffer.from(encoded, 'base64').toString().split(':');
+  return user === (process.env.BASIC_AUTH_ADMIN_USER || '') &&
+         pass === (process.env.BASIC_AUTH_ADMIN_PASS || '');
 }
-
 
 function markerPrefixFor(pathname) {
   return `trash-manifest/${encodeURIComponent(pathname)}__`;
 }
 
-export default async function handler(req) {
-  const forbidden = requireAdmin(req);
-  if (forbidden) return forbidden;
+export default async function handler(req, res) {
+  if (!requireAdmin(req)) {
+    res.statusCode = 403; res.end('Forbidden'); return;
+  }
 
   if (req.method === 'POST') {
-    const { pathname } = await req.json();
-    if (!pathname || !pathname.startsWith('vault/')) return new Response('Bad Request', { status: 400 });
+    const chunks = [];
+    for await (const c of req) chunks.push(c);
+    const { pathname } = JSON.parse(Buffer.concat(chunks).toString() || '{}');
+    if (!pathname || !pathname.startsWith('vault/')) { res.statusCode = 400; res.end('Bad Request'); return; }
     const key = markerPrefixFor(pathname) + Date.now() + '.json';
     await put(key, JSON.stringify({ pathname, trashedAt: new Date().toISOString() }), { access: 'public' });
-    return new Response(null, { status: 204 });
+    res.statusCode = 204; res.end(); return;
   }
 
   if (req.method === 'DELETE') {
-    const url = new URL(req.url);
+    const url = new URL(req.url, 'http://localhost');
     const pathname = url.searchParams.get('pathname') || '';
-    if (!pathname || !pathname.startsWith('vault/')) return new Response('Bad Request', { status: 400 });
-    const prefix = markerPrefixFor(pathname);
-    const { blobs } = await list({ prefix });
+    if (!pathname || !pathname.startsWith('vault/')) { res.statusCode = 400; res.end('Bad Request'); return; }
+    const { blobs } = await list({ prefix: markerPrefixFor(pathname) });
     await Promise.all(blobs.map(b => del(b.url)));
-    return new Response(null, { status: 204 });
+    res.statusCode = 204; res.end(); return;
   }
 
-  return new Response('Method Not Allowed', { status: 405 });
+  res.statusCode = 405; res.end('Method Not Allowed');
 }
