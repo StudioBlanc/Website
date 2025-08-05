@@ -25,20 +25,16 @@ export default async function handler(req, res) {
 
   const url = new URL(req.url, 'http://localhost');
   const pathname = url.searchParams.get('pathname') || '';
-  if (!pathname.startsWith('vault/')) {
-    res.statusCode = 400; res.end('Bad Request'); return;
-  }
+  if (!pathname.startsWith('vault/')) { res.statusCode = 400; res.end('Bad Request'); return; }
 
   const { blobs } = await list({ prefix: pathname });
   const blob = blobs.find(b => b.pathname === pathname);
   if (!blob) { res.statusCode = 404; res.end('Not Found'); return; }
 
   const upstream = await fetch(blob.url, { cache: 'no-store' });
-  if (!upstream.ok || !upstream.body) {
-    res.statusCode = 502; res.end('Upstream error'); return;
-  }
+  if (!upstream.ok || !upstream.body) { res.statusCode = 502; res.end('Upstream error'); return; }
 
-  // Pass through body with restrictive headers
+  // Pass through headers to let the browser render
   res.statusCode = 200;
   res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/octet-stream');
   res.setHeader('Cache-Control', 'no-store');
@@ -47,9 +43,14 @@ export default async function handler(req, res) {
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('X-Frame-Options', 'DENY');
 
-  upstream.body.pipeTo(new WritableStream({
-    write(chunk) { res.write(chunk); },
-    close() { res.end(); },
-    abort() { res.end(); }
-  }));
+  // Stream body to the response (Node-friendly)
+  const reader = upstream.body.getReader();
+  function pump() {
+    return reader.read().then(({ done, value }) => {
+      if (done) { res.end(); return; }
+      res.write(value);
+      return pump();
+    }).catch(() => { try { res.end(); } catch {} });
+  }
+  pump();
 }
