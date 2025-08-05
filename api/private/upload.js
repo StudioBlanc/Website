@@ -2,6 +2,7 @@
 export const config = { runtime: 'nodejs' };
 import { handleUpload } from '@vercel/blob/client';
 
+// Only Admin can upload
 function requireAdmin(req) {
   const header = req.headers.authorization || '';
   const [scheme, encoded] = header.split(' ');
@@ -12,19 +13,42 @@ function requireAdmin(req) {
 }
 
 export default async function handler(req, res) {
-  if (!requireAdmin(req)) {
-    res.statusCode = 403; res.end('Forbidden'); return;
-  }
-  if (req.method !== 'POST') {
-    res.statusCode = 405; res.end('Method Not Allowed'); return;
+  // Allow CORS preflight / odd clients that send OPTIONS (harmless, same-origin)
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    res.setHeader('Allow', 'POST, OPTIONS');
+    res.end();
+    return;
   }
 
-  // Read raw body and create a Fetch Request compatible with handleUpload
+  if (!requireAdmin(req)) {
+    res.statusCode = 403;
+    res.end('Forbidden');
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.statusCode = 405;
+    res.setHeader('Allow', 'POST, OPTIONS');
+    res.end('Method Not Allowed');
+    return;
+  }
+
+  // Read JSON body sent by @vercel/blob/client
   const chunks = [];
   for await (const c of req) chunks.push(c);
   const bodyStr = Buffer.concat(chunks).toString() || '{}';
-  const body = JSON.parse(bodyStr);
 
+  let body;
+  try {
+    body = JSON.parse(bodyStr);
+  } catch {
+    res.statusCode = 400;
+    res.end('Invalid JSON');
+    return;
+  }
+
+  // Create a Fetch Request shim (Node 18+ on Vercel has global Request)
   const request = new Request('https://example.com/api/private/upload', {
     method: 'POST',
     headers: { 'content-type': req.headers['content-type'] || 'application/json' }
@@ -35,9 +59,8 @@ export default async function handler(req, res) {
       body,
       request,
       onBeforeGenerateToken: async (pathname /*, clientPayload */) => ({
-        // allow any type, add random suffix server-side too
+        // allow any type; make names unique
         addRandomSuffix: true,
-        tokenPayload: JSON.stringify({ when: Date.now() }),
       }),
       onUploadCompleted: async ({ blob }) => {
         console.log('Uploaded:', blob.url);
