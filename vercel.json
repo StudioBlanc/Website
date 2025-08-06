@@ -10,7 +10,7 @@
   ],
   "crons": [
     {
-      "path": "/api/sync/dropbox?key=YOUR_SYNC_SECRET",
+      "path": "/api/sync/dropbox?key=tbkuk6za6rnyyil",
       "schedule": "*/15 * * * *"
     }
   ]
