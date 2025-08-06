@@ -7,5 +7,11 @@
     { "source": "/Portfolio",        "destination": "/api/portfolio/index" },
     { "source": "/Portfolio/",       "destination": "/api/portfolio/index" },
     { "source": "/Portfolio/:path*", "destination": "/api/portfolio/index" }
+  ],
+  "crons": [
+    {
+      "path": "/api/sync/dropbox?key=YOUR_SYNC_SECRET",
+      "schedule": "*/15 * * * *"
+    }
   ]
 }
