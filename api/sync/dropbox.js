@@ -55,49 +55,41 @@ async function getTemporaryLink(accessToken, pathOrId) {
 
 export default async function handler(req, res) {
   try {
-    // Protect the endpoint (secret via header or ?key=...)
     const want = process.env.SYNC_SECRET || '';
     const got = req.headers['x-sync-secret'] || new URL(req.url, 'http://x').searchParams.get('key') || '';
     if (want && String(want) !== String(got)) { res.statusCode = 401; return res.end('Unauthorized'); }
 
     const accessToken = await getDropboxAccessToken();
 
-    // Normalize base path from env, e.g. "/Blanc/Documents/Website/Portfolio"
     const base = (process.env.DROPBOX_FOLDER || '').replace(/^\/+|\/+$/g, '');
     const fullBase = base ? '/' + base : '';
 
-    // 1) List recursively
     const allFiles = await listDropboxFilesRecursive(accessToken, fullBase);
 
-    // 2) Filter allowed extensions
     const allowed = new Set(['png','jpg','jpeg','mp4']);
     const cand = allFiles.filter(f => allowed.has((f.name.split('.').pop() || '').toLowerCase()));
 
-    // 3) Upload to Blob, preserving subpaths relative to base
     const prefix = 'productexamples/media/';
     const cap = Number(process.env.SYNC_MAX_FILES || 50);
     let uploaded = 0;
 
     for (const f of cand.slice(0, cap)) {
-      const link = await getTemporaryLink(accessToken, f.id); // use id (stable)
+      const link = await getTemporaryLink(accessToken, f.id);
       const upstream = await fetch(link);
       if (!upstream.ok || !upstream.body) throw new Error(`download failed: ${f.name}`);
 
-      // Path like "/Blanc/Documents/Website/Portfolio/Sub/shot.jpg"
       const display = f.path_display || f.path_lower || f.name;
 
-      // Compute path relative to base
       let rel = display.replace(/^\/+/, '');
       if (base && rel.toLowerCase().startsWith(base.toLowerCase() + '/')) {
         rel = rel.slice(base.length + 1);
       }
-      rel = rel.replace(/^\/+/, ''); // safety
+      rel = rel.replace(/^\/+/, '');
 
       await put(prefix + rel, upstream.body, {
         access: 'public',
         addRandomSuffix: false,
         allowOverwrite: true
-        // token: process.env.BLOB_READ_WRITE_TOKEN // not needed on Vercel when Blob is attached
       });
       uploaded++;
     }
