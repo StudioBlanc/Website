@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Studio Blanc Portfolio</title>
+  <meta name="description" content="Studio Blanc – Portfolio of images and videos." />
+  <meta name="theme-color" content="#F6F3EC" />
+  <style>
+    :root{ --bg:#F6F3EC; --text:#333; --headline:#000; --tileShadow:rgba(0,0,0,.08); --overlayBg:rgba(0,0,0,.92);}
+    *{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",sans-serif;}
+    header{max-width:1200px;margin:28px auto 8px;padding:0 16px;}h1{margin:0 0 8px;font-size:clamp(22px,4.2vw,38px);font-weight:800;color:var(--headline);}
+    .sub{margin:0 0 22px;opacity:.8;font-size:clamp(14px,1.6vw,16px);}main{max-width:1400px;margin:0 auto 64px;padding:0 16px 24px;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+    .tile{position:relative;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 2px 8px var(--tileShadow);cursor:zoom-in;aspect-ratio:1/1;}
+    .tile img,.tile video{width:100%;height:100%;object-fit:cover;display:block;background:#eee8de}.tile video{preload:metadata;pointer-events:none;}
+    .play-badge{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:6px 8px;border-radius:999px;}
+    .lightbox{position:fixed;inset:0;background:var(--overlayBg);display:none;align-items:center;justify-content:center;z-index:9999;}
+    .lightbox.open{display:flex}.lb-inner{position:relative;width:min(96vw,1400px);height:min(92vh,900px);display:flex;align-items:center;justify-content:center;}
+    .lb-media{max-width:100%;max-height:100%;border-radius:12px;background:#000}.lb-close,.lb-prev,.lb-next{position:absolute;top:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;padding:10px 12px;border-radius:10px;font-size:14px;cursor:pointer;backdrop-filter:blur(4px);}
+    .lb-close{right:12px}.lb-prev,.lb-next{top:calc(50% - 20px);transform:translateY(-50%)}.lb-prev{left:12px}.lb-next{right:12px}
+    .lb-caption{position:absolute;left:16px;right:16px;bottom:12px;color:#ddd;font-size:13px;text-align:center;opacity:.9;}
+    .scan{margin:24px 16px 6px;font-size:14px;opacity:.7;display:flex;align-items:center;gap:8px;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#333;opacity:.3;animation:b .9s infinite alternate}
+    .dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}@keyframes b{to{opacity:.8;transform:translateY(-2px)}}
+  </style>
+</head>
+<body>
+<header><h1>Studio Blanc Portfolio</h1><p class="sub">Click any thumbnail to view.</p><p><a href="/" style="text-decoration:underline;color:#333">← Back to homepage</a></p></header>
+<div class="scan" id="scan"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Scanning <code>/Portfolio</code>…</span></div>
+<main><div class="grid" id="grid" aria-live="polite"></div></main>
+<div class="lightbox" id="lightbox"><div class="lb-inner"><button class="lb-prev" id="lb-prev">◀</button><button class="lb-next" id="lb-next">▶</button><button class="lb-close" id="lb-close">✕</button><div class="lb-caption" id="lb-caption"></div></div></div>
+<script>
+const DIR='/Portfolio',MAX=200,STOP=10;
+const probe=(u,vid)=>new Promise(r=>{const e=vid?document.createElement('video'):new Image();if(vid){e.preload='metadata';const s=document.createElement('source');s.src=u;s.type='video/mp4';e.appendChild(s);}e.onload=e.onloadedmetadata=()=>r(1);e.onerror=()=>r(0);e.src=u+'?v='+Date.now();});
+async function scan(){const it=[],add=(t,s,n)=>it.push({t,s,n});let m=0;for(let i=1;i<=MAX;i++){if(await probe(`${DIR}/image${i}.jpg`)){add('img',`${DIR}/image${i}.jpg`,`image${i}`);m=0;}else if(++m>=STOP)break;}m=0;for(let i=1;i<=MAX;i++){if(await probe(`${DIR}/video${i}.mp4`,1)){add('vid',`${DIR}/video${i}.mp4`,`video${i}`);m=0;}else if(++m>=STOP)break;}return it;}
+function grid(items){const g=document.getElementById('grid');g.innerHTML='';items.forEach((o,i)=>{const b=document.createElement('button');b.className='tile';b.onclick=()=>lb(i);if(o.t==='img'){const im=document.createElement('img');im.src=o.s;im.alt=o.n;b.appendChild(im);}else{const v=document.createElement('video');v.muted=true;v.playsInline=true;const s=document.createElement('source');s.src=o.s;s.type='video/mp4';v.appendChild(s);b.appendChild(v);const p=document.createElement('span');p.className='play-badge';p.textContent='Play';b.appendChild(p);}g.appendChild(b);});}
+let ITEMS=[],CUR=-1;const L=document.getElementById('lightbox'),C=document.getElementById('lb-caption');
+function lb(i){CUR=i;show();L.classList.add('open');document.body.style.overflow='hidden';}
+function show(){L.querySelector('.lb-media')?.remove();const o=ITEMS[CUR];const n=o.t==='img'?document.createElement('img'):document.createElement('video');if(o.t==='vid'){n.controls=true;n.autoplay=true;n.playsInline=true;const s=document.createElement('source');s.src=o.s;s.type='video/mp4';n.appendChild(s);}else{n.src=o.s;n.alt=o.n;}n.className='lb-media';L.querySelector('.lb-inner').insertBefore(n,C);C.textContent=o.n;}
+function close(){L.classList.remove('open');L.querySelector('.lb-media')?.remove();document.body.style.overflow='';}
+document.getElementById('lb-close').onclick=close;document.getElementById('lb-prev').onclick=()=>{CUR=(CUR-1+ITEMS.length)%ITEMS.length;show();};document.getElementById('lb-next').onclick=()=>{CUR=(CUR+1)%ITEMS.length;show();};L.onclick=e=>{if(e.target===L)close();};window.onkeydown=e=>{if(L.classList.contains('open')){if(e.key==='Escape')close();if(e.key==='ArrowLeft')document.getElementById('lb-prev').click();if(e.key==='ArrowRight')document.getElementById('lb-next').click();}};
+(async()=>{ITEMS=await scan();document.getElementById('scan').style.display='none';if(!ITEMS.length){document.getElementById('grid').innerHTML='<p>No media found in /Portfolio.</p>';return;}grid(ITEMS);})();
+</script>
+</body>
+</html>
