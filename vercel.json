@@ -9,9 +9,6 @@
     { "source": "/Portfolio/:path*", "destination": "/api/portfolio/index" }
   ],
   "crons": [
-    {
-      "path": "/api/sync/dropbox?key=tbkuk6za6rnyyil",
-      "schedule": "*/15 * * * *"
-    }
+    { "path": "/api/sync/dropbox?key=tbkuk6za6rnyyil", "schedule": "*/15 * * * *" }
   ]
 }
