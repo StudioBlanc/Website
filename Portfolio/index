@@ -1,1 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Studio Blanc Portfolio</title>
+  <meta name="description" content="Studio Blanc – Portfolio of images and videos." />
+  <meta name="theme-color" content="#F6F3EC" />
 
+  <!-- Optional: same analytics you use elsewhere -->
+  <!-- <script defer data-domain="studioblanc.art" src="https://plausible.io/js/script.js"></script> -->
+  <!-- <script defer src="/_vercel/insights/script.js"></script> -->
+
+  <style>
+    :root{
+      --bg:#F6F3EC;
+      --text:#333;
+      --headline:#000; /* black headline as requested */
+      --tileShadow: rgba(0,0,0,0.08);
+      --overlayBg: rgba(0,0,0,0.92);
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", sans-serif;
+    }
+
+    header{
+      max-width:1200px;
+      margin:28px auto 8px;
+      padding:0 16px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size: clamp(22px, 4.2vw, 38px);
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: var(--headline);
+    }
+    .sub{
+      margin:0 0 22px;
+      opacity:.8;
+      font-size: clamp(14px, 1.6vw, 16px);
+    }
+
+    main{
+      max-width: 1400px;
+      margin: 0 auto 64px;
+      padding: 0 16px 24px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .tile{
+      position:relative;
+      border-radius:12px;
+      overflow:hidden;
+      background:#fff;
+      box-shadow: 0 2px 8px var(--tileShadow);
+      cursor: zoom-in;
+      aspect-ratio: 1 / 1; /* nice square thumbs, media inside will cover */
+    }
+    .tile img,
+    .tile video{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      background: #eee8de; /* gentle placeholder */
+    }
+    .tile video{
+      /* keep videos light in grid */
+      preload: metadata;
+      pointer-events:none;
+    }
+    .tile:hover{ transform: translateY(-1px); }
+    .tile:active{ transform: translateY(0); }
+
+    /* Play badge for video thumbs */
+    .play-badge{
+      position:absolute;
+      right:10px; bottom:10px;
+      background: rgba(0,0,0,.6);
+      color:#fff;
+      font-size:12px;
+      padding:6px 8px;
+      border-radius:999px;
+      line-height:1;
+    }
+
+    /* Lightbox */
+    .lightbox{
+      position: fixed;
+      inset: 0;
+      background: var(--overlayBg);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .lightbox.open{ display:flex; }
+    .lb-inner{
+      position: relative;
+      width: min(96vw, 1400px);
+      height: min(92vh, 900px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .lb-media{
+      max-width:100%;
+      max-height:100%;
+      width:auto; height:auto;
+      display:block;
+      border-radius: 12px;
+      background:#000;
+    }
+    .lb-close, .lb-prev, .lb-next{
+      position:absolute;
+      top: 12px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.25);
+      color:#fff;
+      padding: 10px 12px;
+      border-radius:10px;
+      font-size:14px;
+      cursor:pointer;
+      backdrop-filter: blur(4px);
+    }
+    .lb-close{ right:12px; }
+    .lb-prev, .lb-next{
+      top: calc(50% - 20px);
+      transform: translateY(-50%);
+    }
+    .lb-prev{ left:12px; }
+    .lb-next{ right:12px; }
+    .lb-caption{
+      position:absolute;
+      left: 16px; right: 16px; bottom: 12px;
+      color: #ddd;
+      font-size: 13px;
+      text-align: center;
+      opacity:.9;
+    }
+
+    /* Small loader while scanning */
+    .scan{
+      margin: 24px 16px 6px;
+      font-size: 14px;
+      opacity: .7;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .dot{ width:8px; height:8px; border-radius:50%; background:#333; opacity:.3; animation: b .9s infinite alternate }
+    .dot:nth-child(2){ animation-delay: .15s }
+    .dot:nth-child(3){ animation-delay: .3s }
+    @keyframes b { to {opacity:.8; transform: translateY(-2px)} }
+
+    footer{
+      max-width:1200px;
+      margin: 18px auto 36px;
+      padding: 0 16px;
+      opacity:.65;
+      font-size: 13px;
+      text-align:center;
+    }
+
+    @media (hover:hover){
+      .tile:hover img,
+      .tile:hover video{ filter: contrast(1.02) saturate(1.02); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Studio Blanc Portfolio</h1>
+    <p class="sub">A simple grid of images & videos. Click any tile to view it in a lightbox.</p>
+  </header>
+
+  <div class="scan" id="scan">
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span>Scanning <code>/Portfolio</code> for <em>image#.jpg</em> and <em>video#.mp4</em>…</span>
+  </div>
+
+  <main>
+    <div class="grid" id="grid" aria-live="polite"></div>
+  </main>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" aria-modal="true" role="dialog">
+    <div class="lb-inner">
+      <button class="lb-prev" id="lb-prev" aria-label="Previous">◀</button>
+      <button class="lb-next" id="lb-next" aria-label="Next">▶</button>
+      <button class="lb-close" id="lb-close" aria-label="Close">✕</button>
+      <!-- Media will be injected here -->
+      <div class="lb-caption" id="lb-caption"></div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Configuration
+     * Adjust MAX_ITEMS if you expect more files.
+     */
+    const MEDIA_DIR = '/Portfolio';
+    const MAX_ITEMS = 200;
+    const STOP_AFTER_MISSES = 10; // stop scanning after these many misses in a row
+
+    // Utility: probe if an image exists using an Image() object
+    function probeImage(url){
+      return new Promise(resolve=>{
+        const img = new Image();
+        img.onload = ()=> resolve({exists:true, url});
+        img.onerror = ()=> resolve({exists:false, url});
+        img.src = url + '?v=' + Date.now(); // bust caches while scanning
+      });
+    }
+
+    // Utility: probe if a video exists using a <video> element
+    function probeVideo(url){
+      return new Promise(resolve=>{
+        const v = document.createElement('video');
+        v.preload = 'metadata';
+        v.onloadedmetadata = ()=> resolve({exists:true, url});
+        v.onerror = ()=> resolve({exists:false, url});
+        // some browsers need a <source>
+        const s = document.createElement('source');
+        s.src = url + '#t=0.001'; // tiny seek to encourage metadata without download
+        s.type = 'video/mp4';
+        v.appendChild(s);
+      });
+    }
+
+    async function scanSequential(){
+      const items = [];
+
+      // Images: image1.jpg, image2.jpg, ...
+      let misses = 0;
+      for (let i=1; i<=MAX_ITEMS; i++){
+        const url = `${MEDIA_DIR}/image${i}.jpg`;
+        const r = await probeImage(url);
+        if (r.exists){ items.push({type:'image', src:url, name:`image${i}.jpg`}); misses = 0; }
+        else { misses++; if (misses >= STOP_AFTER_MISSES) break; }
+      }
+
+      // Videos: video1.mp4, video2.mp4, ...
+      misses = 0;
+      for (let i=1; i<=MAX_ITEMS; i++){
+        const url = `${MEDIA_DIR}/video${i}.mp4`;
+        const r = await probeVideo(url);
+        if (r.exists){ items.push({type:'video', src:url, name:`video${i}.mp4`}); misses = 0; }
+        else { misses++; if (misses >= STOP_AFTER_MISSES) break; }
+      }
+
+      // Sort by natural order (images then videos by default already, but we can interleave by name if needed)
+      return items;
+    }
+
+    function buildGrid(items){
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      const frag = document.createDocumentFragment();
+
+      items.forEach((item, idx)=>{
+        const tile = document.createElement('button');
+        tile.className = 'tile';
+        tile.setAttribute('aria-label', `Open ${item.name}`);
+        tile.addEventListener('click', ()=> openLightbox(idx));
+
+        if (item.type === 'image'){
+          const img = document.createElement('img');
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.alt = item.name;
+          img.src = item.src;
+          tile.appendChild(img);
+        } else {
+          const vid = document.createElement('video');
+          vid.muted = true;
+          vid.playsInline = true;
+          vid.preload = 'metadata';
+          // no autoplay to keep grid light
+          const src = document.createElement('source');
+          src.src = item.src;
+          src.type = 'video/mp4';
+          vid.appendChild(src);
+          tile.appendChild(vid);
+
+          const badge = document.createElement('span');
+          badge.className = 'play-badge';
+          badge.textContent = 'Play';
+          tile.appendChild(badge);
+        }
+        frag.appendChild(tile);
+      });
+
+      grid.appendChild(frag);
+    }
+
+    // Lightbox
+    const lb = document.getElementById('lightbox');
+    const lbCaption = document.getElementById('lb-caption');
+    const btnClose = document.getElementById('lb-close');
+    const btnPrev = document.getElementById('lb-prev');
+    const btnNext = document.getElementById('lb-next');
+
+    let items = [];
+    let current = -1;
+
+    function openLightbox(index){
+      current = index;
+      renderLightbox();
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox(){
+      lb.classList.remove('open');
+      // remove media node to stop playback
+      const old = lb.querySelector('.lb-media');
+      if (old) old.remove();
+      document.body.style.overflow = '';
+    }
+    function prev(){ if (items.length){ current = (current - 1 + items.length) % items.length; renderLightbox(); } }
+    function next(){ if (items.length){ current = (current + 1) % items.length; renderLightbox(); } }
+
+    function renderLightbox(){
+      const old = lb.querySelector('.lb-media');
+      if (old) old.remove();
+
+      const it = items[current];
+      let node;
+      if (it.type === 'image'){
+        node = document.createElement('img');
+        node.src = it.src;
+        node.alt = it.name;
+      } else {
+        node = document.createElement('video');
+        node.controls = true;
+        node.autoplay = true;
+        node.playsInline = true;
+        const s = document.createElement('source');
+        s.src = it.src;
+        s.type = 'video/mp4';
+        node.appendChild(s);
+      }
+      node.className = 'lb-media';
+      lb.querySelector('.lb-inner').insertBefore(node, lbCaption);
+      lbCaption.textContent = it.name;
+    }
+
+    // Events
+    btnClose.addEventListener('click', closeLightbox);
+    btnPrev.addEventListener('click', prev);
+    btnNext.addEventListener('click', next);
+    lb.addEventListener('click', (e)=>{ if (e.target === lb) closeLightbox(); });
+    window.addEventListener('keydown', (e)=>{
+      if (!lb.classList.contains('open')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+    });
+
+    (async function init(){
+      items = await scanSequential();
+      document.getElementById('scan').style.display = 'none';
+      if (!items.length){
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '<p>No media found in <code>/Portfolio</code>. Add files like <code>image1.jpg</code> or <code>video1.mp4</code>.</p>';
+        return;
+      }
+      buildGrid(items);
+    })();
+  </script>
+</body>
+</html>
