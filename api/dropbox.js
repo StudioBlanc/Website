@@ -1,6 +1,8 @@
+// website/api/dropbox.js
 export const config = { runtime: 'nodejs' };
 import { put } from '@vercel/blob';
 
+// --- Dropbox helpers ---
 async function getDropboxAccessToken() {
   const { DROPBOX_APP_KEY, DROPBOX_APP_SECRET, DROPBOX_REFRESH_TOKEN } = process.env;
   const body = new URLSearchParams({
@@ -63,9 +65,18 @@ async function getTemporaryLink(accessToken, pathOrId) {
   return (await r.json()).link;
 }
 
+// --- Route handler ---
 export default async function handler(req, res) {
   try {
-    // Optional shared-secret (header or ?key=...)
+    // 0) Diagnostic: make missing env vars explicit (remove after things work)
+    const required = ['DROPBOX_APP_KEY','DROPBOX_APP_SECRET','DROPBOX_REFRESH_TOKEN','DROPBOX_FOLDER','SYNC_SECRET'];
+    const missing = required.filter(k => !process.env[k]);
+    if (missing.length) {
+      res.statusCode = 500;
+      return res.end('Missing env vars: ' + missing.join(', '));
+    }
+
+    // 1) Shared-secret check (header or ?key=...)
     const want = process.env.SYNC_SECRET || '';
     const got =
       req.headers['x-sync-secret'] ||
@@ -76,46 +87,41 @@ export default async function handler(req, res) {
       return res.end('Unauthorized');
     }
 
+    // 2) Dropbox access token
     const accessToken = await getDropboxAccessToken();
 
-    // e.g. "/Blanc/Documents/Website/Portfolio"
+    // 3) Normalize base cloud path (e.g. "/Blanc/Documents/Website/Portfolio")
     const base = (process.env.DROPBOX_FOLDER || '').replace(/^\/+|\/+$/g, '');
     const fullBase = base ? '/' + base : '';
 
-    // 1) List recursively
+    // 4) List recursively and filter allowed types
     const allFiles = await listDropboxFilesRecursive(accessToken, fullBase);
-
-    // 2) Filter allowed extensions
     const allowed = new Set(['png', 'jpg', 'jpeg', 'mp4']);
     const cand = allFiles.filter((f) =>
       allowed.has((f.name.split('.').pop() || '').toLowerCase())
     );
 
-    // 3) Upload to Blob, preserving subpaths relative to base
+    // 5) Upload to Blob, preserving the path relative to base
     const prefix = 'productexamples/media/';
     const cap = Number(process.env.SYNC_MAX_FILES || 50);
     let uploaded = 0;
 
     for (const f of cand.slice(0, cap)) {
-      const link = await getTemporaryLink(accessToken, f.id); // use id (stable)
+      const link = await getTemporaryLink(accessToken, f.id);
       const upstream = await fetch(link);
       if (!upstream.ok || !upstream.body) throw new Error(`download failed: ${f.name}`);
 
-      // Path like "/Blanc/Documents/Website/Portfolio/Sub/shot.jpg"
       const display = f.path_display || f.path_lower || f.name;
-
-      // Compute path relative to base
       let rel = display.replace(/^\/+/, '');
       if (base && rel.toLowerCase().startsWith(base.toLowerCase() + '/')) {
         rel = rel.slice(base.length + 1);
       }
-      rel = rel.replace(/^\/+/, ''); // safety
+      rel = rel.replace(/^\/+/, '');
 
       await put(prefix + rel, upstream.body, {
         access: 'public',
         addRandomSuffix: false,
         allowOverwrite: true
-        // token: process.env.BLOB_READ_WRITE_TOKEN // not needed on Vercel when Blob is attached
       });
       uploaded++;
     }
