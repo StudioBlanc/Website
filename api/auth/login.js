@@ -9,17 +9,11 @@ export default async function handler(req, res) {
   const params = new URLSearchParams(body);
 
   const password = params.get('password') || '';
-  const roleReq = (params.get('role') || 'client').toLowerCase();
-
-  const ADMIN_P = process.env.ADMIN_PASSWORD || '';
   const CLIENT_P = process.env.CLIENT_PASSWORD || '';
 
-  let role = null;
-  if (roleReq === 'admin' && password === ADMIN_P) role = 'admin';
-  if (roleReq === 'client' && password === CLIENT_P) role = 'client';
-  if (!role) { res.statusCode = 401; return res.end('Invalid password'); }
+  if (password !== CLIENT_P) { res.statusCode = 401; return res.end('Invalid password'); }
 
-  setSession(res, role);
+  setSession(res, 'client');
   res.statusCode = 302;
   res.setHeader('Location', '/portfolio/');
   res.end();
