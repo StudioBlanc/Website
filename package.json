@@ -1,6 +1,8 @@
 {
-  "name": "studio-blanc",
+  "name": "hidden-portfolio",
   "private": true,
   "type": "module",
-  "dependencies": { "@vercel/blob": "^1.1.1" }
+  "dependencies": {
+    "@vercel/blob": "^1.1.1"
+  }
 }

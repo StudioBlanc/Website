@@ -1,8 +1,16 @@
 {
-  "crons": [{ "path": "/api/private/purge", "schedule": "0 2 * * *" }],
   "rewrites": [
-    { "source": "/private", "destination": "/api/private/index" },
-    { "source": "/private/", "destination": "/api/private/index" },
-    { "source": "/private/:path*", "destination": "/api/private/index" }
+    {
+      "source": "/portfolio",
+      "destination": "/api/portfolio/index"
+    },
+    {
+      "source": "/portfolio/",
+      "destination": "/api/portfolio/index"
+    },
+    {
+      "source": "/portfolio/:path*",
+      "destination": "/api/portfolio/index"
+    }
   ]
 }

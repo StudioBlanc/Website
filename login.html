@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Studio Blanc — Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root { --bg:#F6F3EC; --fg:#222; }
+    html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); font-family: system-ui, Arial, sans-serif; }
+    .wrap{ max-width:360px; margin:12vh auto; background:#fff; border:1px solid #eaeaea; border-radius:14px; padding:22px; box-shadow:0 10px 30px rgba(0,0,0,.06); }
+    h1{ margin:0 0 12px 0; font-size:1.2rem; }
+    label{ display:block; margin:10px 0 6px; }
+    input[type=password]{ width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; }
+    button{ margin-top:14px; padding:10px 14px; border:1px solid #ccc; border-radius:8px; background:#fff; cursor:pointer; }
+    .hint{ color:#666; font-size:.9rem; margin-top:10px; }
+    .err{ background:#ffecec; border:1px solid #ffb6b6; color:#a40000; padding:10px; border-radius:8px; margin:12px 0; display:none; }
+    .role-toggle{ display:flex; gap:12px; margin:8px 0; }
+    .role-toggle label{ display:flex; align-items:center; gap:6px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Studio Blanc — Private</h1>
+    <div id="err" class="err"></div>
+    <form id="f" method="post" action="/api/auth/login">
+      <label>Password</label>
+      <input name="password" type="password" autocomplete="current-password" required />
+      <div class="role-toggle">
+        <label><input type="radio" name="role" value="client" checked> Client</label>
+        <label><input type="radio" name="role" value="admin"> Admin</label>
+      </div>
+      <button type="submit">Login</button>
+      <div class="hint">Use the Client or Admin password you were given.</div>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById('f');
+    const err = document.getElementById('err');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      err.style.display = 'none';
+      const fd = new FormData(form);
+      const res = await fetch('/api/auth/login', { method:'POST', body:fd });
+      if (res.redirected) { location.href = res.url; return; }
+      const text = await res.text();
+      err.textContent = text || 'Login failed.';
+      err.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
