@@ -13,7 +13,7 @@ const HTML = `<!doctype html>
                img-src 'self' blob: data: https:;
                media-src 'self' blob: https:;
                style-src 'self' 'unsafe-inline';
-               script-src 'self' 'unsafe-inline' https://esm.sh;
+               script-src 'self' 'unsafe-inline';
                connect-src 'self';
                frame-ancestors 'none';
                upgrade-insecure-requests">
@@ -24,7 +24,6 @@ header{ display:flex; align-items:center; justify-content:space-between; padding
 .brand{ font-weight:700; letter-spacing:.4px; }
 .role{ color: var(--muted); font-size:.9rem; }
 main{ padding:18px; max-width:1200px; margin:0 auto; }
-.toolbar{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
 .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:16px; }
 .card{ background:var(--card); border:1px solid #eaeaea; border-radius:12px; padding:10px; position:relative; box-shadow:0 1px 2px rgba(0,0,0,.04); cursor:pointer; }
 .thumb{ width:100%; height:180px; object-fit:cover; border-radius:8px; background:#f4f4f4; }
@@ -35,27 +34,19 @@ main{ padding:18px; max-width:1200px; margin:0 auto; }
 .lightbox-content{ max-width:92vw; max-height:92vh; }
 .lightbox-close{ position:absolute; top:18px; right:18px; background:#fff; border-radius:8px; padding:8px 10px; cursor:pointer; }
 button,.btn{ border:1px solid #ccc; background:#fff; padding:8px 10px; border-radius:8px; cursor:pointer; }
-.hidden{ display:none; }
 </style>
 </head>
 <body>
 <header>
   <div class="brand">Studio Blanc — Portfolio</div>
   <div>
-    <span class="role" id="roleLabel">…</span>
+    <span class="role" id="roleLabel">Client</span>
     <a class="btn" href="/api/auth/logout" style="margin-left:10px">Logout</a>
   </div>
 </header>
 
 <main>
   <div id="err" class="error"></div>
-  <div class="toolbar">
-    <form id="uform" class="hidden">
-      <input id="files" type="file" multiple accept=".png,.jpg,.jpeg,.mp4" />
-      <button type="submit" class="btn">Upload</button>
-      <span id="status" class="muted"></span>
-    </form>
-  </div>
   <div id="grid" class="grid"></div>
 </main>
 
@@ -64,21 +55,14 @@ button,.btn{ border:1px solid #ccc; background:#fff; padding:8px 10px; border-ra
   <div id="lbContent" class="lightbox-content"></div>
 </div>
 
-<script type="module">
-import { upload } from "https://esm.sh/@vercel/blob@1.1.1/client";
-
+<script>
 const grid = document.getElementById('grid');
-const status = document.getElementById('status');
-const uform = document.getElementById('uform');
-const roleLabel = document.getElementById('roleLabel');
 const errBox = document.getElementById('err');
 const lb = document.getElementById('lightbox');
 const lbC = document.getElementById('lbContent');
 const lbClose = document.getElementById('lbClose');
 
-// Optional: make saving a bit harder (cannot fully prevent downloads on the web)
 document.addEventListener('contextmenu', (e) => e.preventDefault());
-
 function showError(msg){ errBox.textContent = msg; errBox.style.display = 'block'; }
 function openLightbox(node){ lbC.innerHTML=''; lbC.appendChild(node); lb.classList.add('visible'); }
 lbClose.addEventListener('click', ()=> lb.classList.remove('visible'));
@@ -108,10 +92,6 @@ function cardFor(item) {
 async function load() {
   const r = await fetch('/api/auth/me', { cache:'no-store' });
   if (r.status === 401) { location.href = '/login.html'; return; }
-  const me = await r.json();
-  const isAdmin = me.role === 'admin';
-  roleLabel.textContent = isAdmin ? 'Admin' : 'Client';
-  if (isAdmin) uform.classList.remove('hidden');
 
   const r2 = await fetch('/api/files/list', { cache:'no-store' });
   if (!r2.ok) { showError('List failed: ' + r2.status); return; }
@@ -119,39 +99,6 @@ async function load() {
   grid.innerHTML = '';
   for (const it of (data.items || [])) grid.appendChild(cardFor(it));
 }
-
-async function doUpload(files) {
-  status.textContent = 'Uploading...';
-  for (const file of files) {
-    const ext = (file.name.split('.').pop() || '').toLowerCase();
-    if (!['png','jpg','jpeg','mp4'].includes(ext)) { showError('Only PNG, JPG, MP4 allowed.'); continue; }
-    const pathname = 'productexamples/media/' + file.name;
-    try {
-      await upload(pathname, file, { access: 'public', addRandomSuffix: true, handleUploadUrl: '/api/files/upload' });
-    } catch (err) {
-      showError('Upload failed: ' + (err?.message || err));
-    }
-  }
-  status.textContent = 'Done.';
-  await load();
-}
-
-uform.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const files = document.getElementById('files').files;
-  if (!files || !files.length) return;
-  await doUpload(files);
-  document.getElementById('files').value = '';
-});
-
-document.addEventListener('dragover', (e) => { e.preventDefault(); });
-document.addEventListener('drop', async (e) => {
-  e.preventDefault();
-  const r = await fetch('/api/auth/me'); if (r.status !== 200) return;
-  const me = await r.json(); if (me.role !== 'admin') return;
-  const files = e.dataTransfer?.files; if (!files || !files.length) return;
-  await doUpload(files);
-});
 
 load();
 </script>
