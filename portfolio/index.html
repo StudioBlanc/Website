@@ -4,12 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Studio Blanc Portfolio</title>
-  <meta name="description" content="Studio Blanc – Portfolio of images and videos." />
   <meta name="theme-color" content="#F6F3EC" />
 
   <style>
     :root{
-      --bg:#F6F3EC;
+      --bg:#F6F3EC;        /* page background */
       --text:#333;
       --headline:#000;
       --tileShadow:rgba(0,0,0,.08);
@@ -29,29 +28,25 @@
     .sub{margin:0 0 22px;opacity:.8;font-size:clamp(14px,1.6vw,16px);}
     main{max-width:1400px;width:100%;padding:0 16px 64px;}
 
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-      gap:14px;
-    }
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
 
-    /* tile now stretches to natural ratio (no square cropping) */
+    /* ---- tile ---- */
     .tile{
       position:relative;
       border-radius:12px;
       overflow:hidden;
-      background:#fff;
       box-shadow:0 2px 8px var(--tileShadow);
       cursor:zoom-in;
-      max-height:450px;   /* keep very tall images reasonable; tweak or remove */
+      max-height:450px;                 /* cap very tall images */
+      background:#000;                  /* black frame */
     }
 
-    .tile img,.tile video{
-      width:100%;
-      height:100%;
-      object-fit:contain; /* show full content, no crop */
+    .tile img,
+    .tile video{
+      width:100%;height:100%;
+      object-fit:contain;               /* full image, no crop */
       display:block;
-      background:#eee8de;
+      background:#000;                  /* any letter-box area is black */
     }
     .tile video{preload:metadata;pointer-events:none;}
 
@@ -61,7 +56,7 @@
       padding:6px 8px;border-radius:999px;
     }
 
-    /* lightbox */
+    /* ---- lightbox ---- */
     .lightbox{position:fixed;inset:0;background:var(--overlayBg);display:none;align-items:center;justify-content:center;z-index:9999;}
     .lightbox.open{display:flex;}
     .lb-inner{position:relative;width:min(96vw,1400px);height:min(92vh,900px);display:flex;align-items:center;justify-content:center;}
@@ -78,7 +73,7 @@
     .lb-next{right:12px;}
     .lb-caption{position:absolute;left:16px;right:16px;bottom:12px;color:#ddd;font-size:13px;text-align:center;opacity:.9;}
 
-    /* scanning dots */
+    /* scanning animation */
     .scan{margin-bottom:24px;font-size:14px;opacity:.7;display:flex;align-items:center;gap:8px;}
     .dot{width:8px;height:8px;border-radius:50%;background:#333;opacity:.3;animation:b .9s infinite alternate;}
     .dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
@@ -97,9 +92,7 @@
     <span>Scanning <code>/Portfolio</code> for media…</span>
   </div>
 
-  <main>
-    <div class="grid" id="grid" aria-live="polite"></div>
-  </main>
+  <main><div class="grid" id="grid" aria-live="polite"></div></main>
 
   <!-- Lightbox -->
   <div class="lightbox" id="lightbox" aria-modal="true" role="dialog">
@@ -113,14 +106,18 @@
 
   <script>
     const DIR='/Portfolio',MAX=200,STOP=10;
+
     const probe=(u,v)=>new Promise(r=>{
       const e=v?document.createElement('video'):new Image();
       if(v){e.preload='metadata';const s=document.createElement('source');s.src=u;s.type='video/mp4';e.appendChild(s);}
-      e.onload=e.onloadedmetadata=()=>r(1);e.onerror=()=>r(0);e.src=u+'?v='+Date.now();
+      e.onload=e.onloadedmetadata=()=>r(1);
+      e.onerror=()=>r(0);
+      e.src=u+'?v='+Date.now();
     });
 
     async function scan(){
-      const a=[],add=(t,s,n)=>a.push({t,s,n});let miss=0;
+      const list=[],add=(t,s,n)=>list.push({t,s,n});
+      let miss=0;
       for(let i=1;i<=MAX;i++){
         if(await probe(`${DIR}/image${i}.jpg`)){add('img',`${DIR}/image${i}.jpg`,`image${i}`);miss=0;}
         else if(++miss>=STOP) break;
@@ -130,27 +127,35 @@
         if(await probe(`${DIR}/video${i}.mp4`,1)){add('vid',`${DIR}/video${i}.mp4`,`video${i}`);miss=0;}
         else if(++miss>=STOP) break;
       }
-      return a;
+      return list;
     }
 
     function buildGrid(items){
       const g=document.getElementById('grid');g.innerHTML='';
       items.forEach((o,i)=>{
-        const b=document.createElement('button');b.className='tile';b.onclick=()=>openLB(i);
+        const b=document.createElement('button');
+        b.className='tile';
+        b.onclick=()=>openLB(i);
+
         if(o.t==='img'){
-          const im=document.createElement('img');im.src=o.s;im.alt=o.n;b.appendChild(im);
+          const im=document.createElement('img');
+          im.src=o.s;im.alt=o.n;
+          b.appendChild(im);
         }else{
-          const v=document.createElement('video');v.muted=true;v.playsInline=true;
-          const s=document.createElement('source');s.src=o.s;s.type='video/mp4';v.appendChild(s);b.appendChild(v);
+          const v=document.createElement('video');
+          v.muted=true;v.playsInline=true;
+          const s=document.createElement('source');s.src=o.s;s.type='video/mp4';
+          v.appendChild(s);b.appendChild(v);
           const badge=document.createElement('span');badge.className='play-badge';badge.textContent='Play';b.appendChild(badge);
         }
         g.appendChild(b);
       });
     }
 
-    /* lightbox logic */
+    /* ---- lightbox logic ---- */
     let ITEMS=[],CUR=-1;
     const LB=document.getElementById('lightbox'),CAP=document.getElementById('lb-caption');
+
     function openLB(i){CUR=i;renderLB();LB.classList.add('open');document.body.style.overflow='hidden';}
     function closeLB(){LB.classList.remove('open');LB.querySelector('.lb-media')?.remove();document.body.style.overflow='';}
     function renderLB(){
@@ -162,8 +167,10 @@
         n.appendChild(Object.assign(document.createElement('source'),{src:o.s,type:'video/mp4'}));
       }else{n.src=o.s;n.alt=o.n;}
       n.className='lb-media';
-      LB.querySelector('.lb-inner').insertBefore(n,CAP);CAP.textContent=o.n;
+      LB.querySelector('.lb-inner').insertBefore(n,CAP);
+      CAP.textContent=o.n;
     }
+
     document.getElementById('lb-close').onclick=closeLB;
     document.getElementById('lb-prev').onclick=()=>{CUR=(CUR-1+ITEMS.length)%ITEMS.length;renderLB();};
     document.getElementById('lb-next').onclick=()=>{CUR=(CUR+1)%ITEMS.length;renderLB();};
@@ -175,6 +182,7 @@
       if(e.key==='ArrowRight') document.getElementById('lb-next').click();
     };
 
+    /* ---- init ---- */
     (async()=>{
       ITEMS=await scan();
       document.getElementById('scan').style.display='none';
