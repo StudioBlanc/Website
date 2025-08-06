@@ -1,4 +1,3 @@
-// api/files/view.js
 export const config = { runtime: 'nodejs' };
 import { getRole } from '../_session.js';
 import { list } from '@vercel/blob';

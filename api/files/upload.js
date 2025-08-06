@@ -1,4 +1,3 @@
-// api/files/upload.js
 export const config = { runtime: 'nodejs' };
 import { getRole } from '../_session.js';
 import { handleUpload } from '@vercel/blob/client';
@@ -36,7 +35,7 @@ export default async function handler(req, res) {
         return { addRandomSuffix: true };
       },
       onUploadCompleted: async ({ blob }) => {
-        console.log('Uploaded:', blob.url);
+        console.log('Uploaded:', blob.url');
       }
     });
 

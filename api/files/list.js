@@ -1,4 +1,3 @@
-// api/files/list.js
 export const config = { runtime: 'nodejs' };
 import { getRole } from '../_session.js';
 import { list, head } from '@vercel/blob';
@@ -7,9 +6,7 @@ export default async function handler(req, res) {
   const role = getRole(req);
   if (!role) { res.statusCode = 401; return res.end('Unauthorized'); }
 
-  const prefix = 'productexamples/media/';
-  const { blobs } = await list({ prefix });
-
+  const { blobs } = await list({ prefix: 'productexamples/media/' });
   const items = [];
   for (const b of blobs) {
     let ct = '';

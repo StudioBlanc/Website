@@ -1,4 +1,3 @@
-// api/auth/logout.js
 export const config = { runtime: 'nodejs' };
 import { clearSession } from '../_session.js';
 

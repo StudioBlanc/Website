@@ -1,6 +1,5 @@
-// api/portfolio/index.js
 export const config = { runtime: 'nodejs' };
-import { getRole } from '../_session.js';
+import { getRole } from '..//_session.js';
 
 const HTML = `<!doctype html>
 <html lang="en">
@@ -29,15 +28,14 @@ main{ padding:18px; max-width:1200px; margin:0 auto; }
 .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap:16px; }
 .card{ background:var(--card); border:1px solid #eaeaea; border-radius:12px; padding:10px; position:relative; box-shadow:0 1px 2px rgba(0,0,0,.04); cursor:pointer; }
 .thumb{ width:100%; height:180px; object-fit:cover; border-radius:8px; background:#f4f4f4; }
-.row{ display:flex; gap:8px; align-items:center; margin-top:8px; }
-button, .btn{ border:1px solid #ccc; background:#fff; padding:8px 10px; border-radius:8px; cursor:pointer; }
 .muted{ color:var(--muted); }
 .error{ background:#ffecec; border:1px solid #ffb6b6; color:#a40000; padding:10px; border-radius:8px; margin:12px 0; display:none; }
-/* lightbox */
 .lightbox{ position:fixed; inset:0; background:rgba(0,0,0,.9); display:none; align-items:center; justify-content:center; z-index:100; }
 .lightbox.visible{ display:flex; }
 .lightbox-content{ max-width:92vw; max-height:92vh; }
 .lightbox-close{ position:absolute; top:18px; right:18px; background:#fff; border-radius:8px; padding:8px 10px; cursor:pointer; }
+button,.btn{ border:1px solid #ccc; background:#fff; padding:8px 10px; border-radius:8px; cursor:pointer; }
+.hidden{ display:none; }
 </style>
 </head>
 <body>
@@ -78,14 +76,11 @@ const lb = document.getElementById('lightbox');
 const lbC = document.getElementById('lbContent');
 const lbClose = document.getElementById('lbClose');
 
-function showError(msg){ errBox.textContent = msg; errBox.style.display = 'block'; }
-function clearError(){ errBox.textContent=''; errBox.style.display = 'none'; }
+// Optional: make saving a bit harder (cannot fully prevent downloads on the web)
+document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-function openLightbox(node){
-  lbC.innerHTML = '';
-  lbC.appendChild(node);
-  lb.classList.add('visible');
-}
+function showError(msg){ errBox.textContent = msg; errBox.style.display = 'block'; }
+function openLightbox(node){ lbC.innerHTML=''; lbC.appendChild(node); lb.classList.add('visible'); }
 lbClose.addEventListener('click', ()=> lb.classList.remove('visible'));
 lb.addEventListener('click', (e)=> { if (e.target === lb) lb.classList.remove('visible'); });
 
@@ -96,7 +91,6 @@ function cardFor(item) {
 
   const src = '/api/files/view?pathname=' + encodeURIComponent(item.pathname);
   const ct = (item.contentType || '').toLowerCase();
-
   if (ct.startsWith('image/')) {
     const img = document.createElement('img'); img.src = src; img.alt = item.pathname; img.className='thumb';
     img.addEventListener('click', ()=> { const big = new Image(); big.src = src; big.style.maxWidth='100%'; big.style.maxHeight='100%'; openLightbox(big); });

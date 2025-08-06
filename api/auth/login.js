@@ -1,11 +1,9 @@
-// api/auth/login.js
 export const config = { runtime: 'nodejs' };
 import { setSession } from '../_session.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.statusCode = 405; return res.end('Method Not Allowed'); }
 
-  // Parse form
   const chunks = []; for await (const c of req) chunks.push(c);
   const body = Buffer.concat(chunks).toString();
   const params = new URLSearchParams(body);

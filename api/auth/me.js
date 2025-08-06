@@ -1,4 +1,3 @@
-// api/auth/me.js
 export const config = { runtime: 'nodejs' };
 import { getRole } from '../_session.js';
 

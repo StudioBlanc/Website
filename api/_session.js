@@ -1,4 +1,3 @@
-// api/_session.js
 import crypto from 'node:crypto';
 const COOKIE = 'sb_sess';
 const MAX_AGE = 60 * 60 * 12; // 12h
