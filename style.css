@@ -1,0 +1,144 @@
+/*
+ * Global styles for Studio Blanc teaser site.
+ * Defines a modern, minimal palette and reusable components such as the
+ * header, footer and navigation bar.  This stylesheet is shared by both
+ * the home page and the portfolio page to ensure consistency.
+ */
+
+/* colour palette and base typography */
+:root {
+  --bg: #F6F3EC;          /* soft beige background */
+  --text: #333333;        /* primary text colour */
+  --headline: #000000;    /* headings and nav accent */
+  --nav-bg: rgba(0, 0, 0, 0.05);
+  --nav-border: rgba(0, 0, 0, 0.1);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  color: var(--text);
+  background: var(--bg);
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* header styling for hero sections */
+header {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 80px 20px;
+}
+
+header h1 {
+  font-size: clamp(32px, 8vw, 72px);
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+  color: var(--headline);
+  font-weight: 800;
+}
+
+header p {
+  font-size: clamp(14px, 2.5vw, 20px);
+  max-width: 600px;
+  opacity: 0.8;
+  margin: 0 0 1.5em;
+}
+
+header .cta-button {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 30px;
+  background: var(--headline);
+  color: var(--bg);
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+header .cta-button:hover {
+  background: var(--text);
+}
+
+/* newsletter and contact container */
+.notify-container {
+  margin: 40px auto;
+  max-width: 350px;
+  text-align: center;
+}
+
+.beehiiv-iframe {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+}
+
+/* social links */
+.social-footer {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 20px 0;
+}
+
+.social-footer a {
+  color: var(--text);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.social-footer a:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* floating navigation bar */
+nav {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 24px;
+  background: var(--nav-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--nav-border);
+  border-radius: 40px;
+  padding: 10px 20px;
+  z-index: 100;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background 0.3s, color 0.3s;
+}
+
+nav a:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+
+@media (max-width: 768px) {
+  nav {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 8px 16px;
+  }
+}

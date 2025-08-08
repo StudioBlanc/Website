@@ -1,193 +1,324 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Studio Blanc Portfolio</title>
-  <meta name="theme-color" content="#F6F3EC" />
+  <head>
+    <meta charset="utf-8" />
+    <title>Studio Blanc – Selected Work</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- reuse the global stylesheet from the site root -->
+    <link rel="stylesheet" href="../style.css" />
+    <!-- portfolio specific styles -->
+    <style>
+      /* Container for portfolio grid and header */
+      main {
+        width: 100%;
+        padding: 0 16px 80px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
 
-  <style>
-    :root{
-      --bg:#F6F3EC;        /* page background */
-      --text:#333;
-      --headline:#000;
-      --tileShadow:rgba(0,0,0,.08);
-      --overlayBg:rgba(0,0,0,.92);
-    }
+      .portfolio-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
 
-    /* full-screen centring */
-    html,body{
-      margin:0;padding:0;height:100%;
-      background:var(--bg);color:var(--text);
-      font-family:Arial,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",sans-serif;
-      display:flex;flex-direction:column;justify-content:center;align-items:center;
-    }
+      .portfolio-header h1 {
+        font-size: clamp(32px, 6vw, 60px);
+        line-height: 1.1;
+        margin-bottom: 0.3em;
+        color: var(--headline);
+      }
 
-    header{margin:0 auto 24px;text-align:center;padding:0 16px;}
-    h1{margin:0 0 8px;font-size:clamp(22px,4.2vw,38px);font-weight:800;color:var(--headline);}
-    .sub{margin:0 0 22px;opacity:.8;font-size:clamp(14px,1.6vw,16px);}
-    main{max-width:1400px;width:100%;padding:0 16px 64px;}
+      .portfolio-header p {
+        font-size: clamp(14px, 2vw, 18px);
+        max-width: 600px;
+        margin: 0 auto;
+        opacity: 0.7;
+      }
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+      }
 
-    /* ---- tile ---- */
-    .tile{
-      position:relative;
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 2px 8px var(--tileShadow);
-      cursor:zoom-in;
-      max-height:450px;                 /* cap very tall images */
-      background:#000;                  /* black frame */
-    }
+      .tile {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        background: #000;
+      }
 
-    .tile img,
-    .tile video{
-      width:100%;height:100%;
-      object-fit:contain;               /* full image, no crop */
-      display:block;
-      background:#000;                  /* any letter-box area is black */
-    }
-    .tile video{preload:metadata;pointer-events:none;}
+      .tile img,
+      .tile video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        background: #000;
+      }
 
-    .play-badge{
-      position:absolute;right:10px;bottom:10px;
-      background:rgba(0,0,0,.6);color:#fff;font-size:12px;
-      padding:6px 8px;border-radius:999px;
-    }
+      .play-icon {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        padding: 6px 8px;
+        border-radius: 50%;
+        font-size: 14px;
+      }
 
-    /* ---- lightbox ---- */
-    .lightbox{position:fixed;inset:0;background:var(--overlayBg);display:none;align-items:center;justify-content:center;z-index:9999;}
-    .lightbox.open{display:flex;}
-    .lb-inner{position:relative;width:min(96vw,1400px);height:min(92vh,900px);display:flex;align-items:center;justify-content:center;}
-    .lb-media{max-width:100%;max-height:100%;border-radius:12px;background:#000;}
-    .lb-close,.lb-prev,.lb-next{
-      position:absolute;top:12px;background:rgba(255,255,255,.1);
-      border:1px solid rgba(255,255,255,.25);color:#fff;
-      padding:10px 12px;border-radius:10px;font-size:14px;
-      cursor:pointer;backdrop-filter:blur(4px);
-    }
-    .lb-close{right:12px;}
-    .lb-prev,.lb-next{top:calc(50% - 20px);transform:translateY(-50%);}
-    .lb-prev{left:12px;}
-    .lb-next{right:12px;}
-    .lb-caption{position:absolute;left:16px;right:16px;bottom:12px;color:#ddd;font-size:13px;text-align:center;opacity:.9;}
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+      }
 
-    /* scanning animation */
-    .scan{margin-bottom:24px;font-size:14px;opacity:.7;display:flex;align-items:center;gap:8px;}
-    .dot{width:8px;height:8px;border-radius:50%;background:#333;opacity:.3;animation:b .9s infinite alternate;}
-    .dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
-    @keyframes b{to{opacity:.8;transform:translateY(-2px);}}
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Studio Blanc Portfolio</h1>
-    <p class="sub">Click any thumbnail to view.</p>
-    <p><a href="/" style="color:#333;text-decoration:underline;">← Back to homepage</a></p>
-  </header>
+      .lightbox.open {
+        display: flex;
+      }
 
-  <div class="scan" id="scan">
-    <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-    <span>Scanning <code>/Portfolio</code> for media…</span>
-  </div>
+      .lb-inner {
+        position: relative;
+        width: min(96vw, 1200px);
+        height: min(92vh, 800px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-  <main><div class="grid" id="grid" aria-live="polite"></div></main>
+      .lb-media {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 12px;
+        background: #000;
+      }
 
-  <!-- Lightbox -->
-  <div class="lightbox" id="lightbox" aria-modal="true" role="dialog">
-    <div class="lb-inner">
-      <button class="lb-prev" id="lb-prev">◀</button>
-      <button class="lb-next" id="lb-next">▶</button>
-      <button class="lb-close" id="lb-close">✕</button>
-      <div class="lb-caption" id="lb-caption"></div>
+      .lb-close,
+      .lb-prev,
+      .lb-next {
+        position: absolute;
+        top: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #fff;
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        backdrop-filter: blur(4px);
+      }
+
+      .lb-close {
+        right: 12px;
+      }
+
+      .lb-prev,
+      .lb-next {
+        top: calc(50% - 20px);
+        transform: translateY(-50%);
+      }
+
+      .lb-prev {
+        left: 12px;
+      }
+
+      .lb-next {
+        right: 12px;
+      }
+
+      .lb-caption {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 12px;
+        color: #ddd;
+        font-size: 13px;
+        text-align: center;
+        opacity: 0.9;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Page header for portfolio listing -->
+    <header class="portfolio-header">
+      <h1>Selected Work</h1>
+      <p>A curated selection of our latest CGI &amp; VFX projects.</p>
+    </header>
+
+    <main>
+      <div id="grid" class="grid"></div>
+    </main>
+
+    <!-- Lightbox markup for viewing individual images and videos -->
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+      <div class="lb-inner">
+        <div id="lb-caption" class="lb-caption"></div>
+        <button id="lb-close" class="lb-close" aria-label="Close">&times;</button>
+        <button id="lb-prev" class="lb-prev" aria-label="Previous">&#9664;</button>
+        <button id="lb-next" class="lb-next" aria-label="Next">&#9654;</button>
+      </div>
     </div>
-  </div>
 
-  <script>
-    const DIR='/Portfolio',MAX=200,STOP=10;
+    <!-- Shared site navigation -->
+    <nav>
+      <a href="/">Home</a>
+      <a href="/portfolio/">Portfolio</a>
+      <a href="/about.html">About</a>
+      <a href="mailto:info@studioblanc.art">Contact</a>
+    </nav>
 
-    const probe=(u,v)=>new Promise(r=>{
-      const e=v?document.createElement('video'):new Image();
-      if(v){e.preload='metadata';const s=document.createElement('source');s.src=u;s.type='video/mp4';e.appendChild(s);}
-      e.onload=e.onloadedmetadata=()=>r(1);
-      e.onerror=()=>r(0);
-      e.src=u+'?v='+Date.now();
-    });
+    <script>
+      // Simple scanning utility for images and videos.  This replicates the
+      // original behaviour of scanning numbered files (image1.jpg, video1.mp4, etc.)
+      // from the /Portfolio folder on the server.  In the future you can
+      // replace this with a curated array of projects for more control.
+      const DIR = '/Portfolio';
+      const MAX = 200;
+      const STOP = 10;
 
-    async function scan(){
-      const list=[],add=(t,s,n)=>list.push({t,s,n});
-      let miss=0;
-      for(let i=1;i<=MAX;i++){
-        if(await probe(`${DIR}/image${i}.jpg`)){add('img',`${DIR}/image${i}.jpg`,`image${i}`);miss=0;}
-        else if(++miss>=STOP) break;
-      }
-      miss=0;
-      for(let i=1;i<=MAX;i++){
-        if(await probe(`${DIR}/video${i}.mp4`,1)){add('vid',`${DIR}/video${i}.mp4`,`video${i}`);miss=0;}
-        else if(++miss>=STOP) break;
-      }
-      return list;
-    }
+      const probe = (u, v) =>
+        new Promise((r) => {
+          const e = v ? document.createElement('video') : new Image();
+          if (v) {
+            e.preload = 'metadata';
+            const s = document.createElement('source');
+            s.src = u;
+            s.type = 'video/mp4';
+            e.appendChild(s);
+          }
+          e.onload = e.onloadedmetadata = () => r(1);
+          e.onerror = () => r(0);
+          e.src = u + '?v=' + Date.now();
+        });
 
-    function buildGrid(items){
-      const g=document.getElementById('grid');g.innerHTML='';
-      items.forEach((o,i)=>{
-        const b=document.createElement('button');
-        b.className='tile';
-        b.onclick=()=>openLB(i);
-
-        if(o.t==='img'){
-          const im=document.createElement('img');
-          im.src=o.s;im.alt=o.n;
-          b.appendChild(im);
-        }else{
-          const v=document.createElement('video');
-          v.muted=true;v.playsInline=true;
-          const s=document.createElement('source');s.src=o.s;s.type='video/mp4';
-          v.appendChild(s);b.appendChild(v);
-          const badge=document.createElement('span');badge.className='play-badge';badge.textContent='Play';b.appendChild(badge);
+      async function scan() {
+        const list = [],
+          add = (t, s, n) => list.push({ t, s, n });
+        let miss = 0;
+        for (let i = 1; i <= MAX; i++) {
+          if (await probe(`${DIR}/image${i}.jpg`)) {
+            add('img', `${DIR}/image${i}.jpg`, `image${i}`);
+            miss = 0;
+          } else if (++miss >= STOP) break;
         }
-        g.appendChild(b);
-      });
-    }
+        miss = 0;
+        for (let i = 1; i <= MAX; i++) {
+          if (await probe(`${DIR}/video${i}.mp4`, 1)) {
+            add('vid', `${DIR}/video${i}.mp4`, `video${i}`);
+            miss = 0;
+          } else if (++miss >= STOP) break;
+        }
+        return list;
+      }
 
-    /* ---- lightbox logic ---- */
-    let ITEMS=[],CUR=-1;
-    const LB=document.getElementById('lightbox'),CAP=document.getElementById('lb-caption');
+      function buildGrid(items) {
+        const g = document.getElementById('grid');
+        g.innerHTML = '';
+        items.forEach((o, i) => {
+          const b = document.createElement('button');
+          b.className = 'tile';
+          b.onclick = () => openLB(i);
+          if (o.t === 'img') {
+            const im = document.createElement('img');
+            im.src = o.s;
+            im.alt = o.n;
+            b.appendChild(im);
+          } else {
+            const v = document.createElement('video');
+            v.muted = true;
+            v.playsInline = true;
+            const s = document.createElement('source');
+            s.src = o.s;
+            s.type = 'video/mp4';
+            v.appendChild(s);
+            b.appendChild(v);
+            const badge = document.createElement('span');
+            badge.className = 'play-icon';
+            badge.textContent = '▶';
+            b.appendChild(badge);
+          }
+          g.appendChild(b);
+        });
+      }
 
-    function openLB(i){CUR=i;renderLB();LB.classList.add('open');document.body.style.overflow='hidden';}
-    function closeLB(){LB.classList.remove('open');LB.querySelector('.lb-media')?.remove();document.body.style.overflow='';}
-    function renderLB(){
-      LB.querySelector('.lb-media')?.remove();
-      const o=ITEMS[CUR];
-      const n=o.t==='img'?document.createElement('img'):document.createElement('video');
-      if(o.t==='vid'){
-        n.controls=true;n.autoplay=true;n.playsInline=true;
-        n.appendChild(Object.assign(document.createElement('source'),{src:o.s,type:'video/mp4'}));
-      }else{n.src=o.s;n.alt=o.n;}
-      n.className='lb-media';
-      LB.querySelector('.lb-inner').insertBefore(n,CAP);
-      CAP.textContent=o.n;
-    }
-
-    document.getElementById('lb-close').onclick=closeLB;
-    document.getElementById('lb-prev').onclick=()=>{CUR=(CUR-1+ITEMS.length)%ITEMS.length;renderLB();};
-    document.getElementById('lb-next').onclick=()=>{CUR=(CUR+1)%ITEMS.length;renderLB();};
-    LB.onclick=e=>{if(e.target===LB) closeLB();};
-    window.onkeydown=e=>{
-      if(!LB.classList.contains('open')) return;
-      if(e.key==='Escape') closeLB();
-      if(e.key==='ArrowLeft') document.getElementById('lb-prev').click();
-      if(e.key==='ArrowRight') document.getElementById('lb-next').click();
-    };
-
-    /* ---- init ---- */
-    (async()=>{
-      ITEMS=await scan();
-      document.getElementById('scan').style.display='none';
-      ITEMS.length?buildGrid(ITEMS):document.getElementById('grid').innerHTML='<p>No media found in /Portfolio.</p>';
-    })();
-  </script>
-</body>
+      /* lightbox handling */
+      let ITEMS = [],
+        CUR = -1;
+      const LB = document.getElementById('lightbox'),
+        CAP = document.getElementById('lb-caption');
+      function openLB(i) {
+        CUR = i;
+        renderLB();
+        LB.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeLB() {
+        LB.classList.remove('open');
+        LB.querySelector('.lb-media')?.remove();
+        document.body.style.overflow = '';
+      }
+      function renderLB() {
+        LB.querySelector('.lb-media')?.remove();
+        const o = ITEMS[CUR];
+        const n = o.t === 'img' ? document.createElement('img') : document.createElement('video');
+        if (o.t === 'vid') {
+          n.controls = true;
+          n.autoplay = true;
+          n.playsInline = true;
+          n.appendChild(
+            Object.assign(document.createElement('source'), {
+              src: o.s,
+              type: 'video/mp4',
+            })
+          );
+        } else {
+          n.src = o.s;
+          n.alt = o.n;
+        }
+        n.className = 'lb-media';
+        LB.querySelector('.lb-inner').insertBefore(n, CAP);
+        CAP.textContent = o.n;
+      }
+      document.getElementById('lb-close').onclick = closeLB;
+      document.getElementById('lb-prev').onclick = () => {
+        CUR = (CUR - 1 + ITEMS.length) % ITEMS.length;
+        renderLB();
+      };
+      document.getElementById('lb-next').onclick = () => {
+        CUR = (CUR + 1) % ITEMS.length;
+        renderLB();
+      };
+      LB.onclick = (e) => {
+        if (e.target === LB) closeLB();
+      };
+      window.onkeydown = (e) => {
+        if (!LB.classList.contains('open')) return;
+        if (e.key === 'Escape') closeLB();
+        if (e.key === 'ArrowLeft') document.getElementById('lb-prev').click();
+        if (e.key === 'ArrowRight') document.getElementById('lb-next').click();
+      };
+      // Initialise grid on page load
+      (async () => {
+        ITEMS = await scan();
+        if (ITEMS.length) {
+          buildGrid(ITEMS);
+        } else {
+          document.getElementById('grid').innerHTML = '<p>No media found.</p>';
+        }
+      })();
+    </script>
+  </body>
 </html>
