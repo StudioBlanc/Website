@@ -115,6 +115,14 @@ header .cta-button:hover {
   transform: scale(1.05);
 }
 
+/* size and align inline SVG icons in the social footer */
+.social-footer .social-icon {
+  width: 36px;
+  height: 36px;
+  display: block;
+  fill: currentColor;
+}
+
 /* floating navigation bar */
 nav {
   position: fixed;
