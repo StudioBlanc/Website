@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Studio Blanc — Boutique CGI &amp; VFX Studio</title>
+    <title>Studio Blanc – CGI &amp; VFX Studio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Preconnect hints for font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,23 +16,24 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- Hero section with a concise introduction and call to action -->
+    <!-- Hero section with logo and call to action -->
     <header>
-      <h1>Studio Blanc</h1>
-      <p>
-        Boutique CGI &amp; VFX studio delivering big‑agency quality visuals with a
-        personal, collaborative approach.
-      </p>
-      <a href="#contact" class="cta-button">Get in touch</a>
+      <!-- Display the original Studio Blanc logo artwork.  The image file
+           "Homepage.jpg" is included alongside this page and mirrors the
+           "BLANC" hero graphic from the original teaser site. -->
+      <img src="Homepage.jpg" alt="Studio Blanc logo" class="logo" />
+      <!-- Clicking the button opens the user's default mail client to send an
+           email to Studio Blanc. -->
+      <a href="mailto:info@studioblanc.art" class="cta-button">Get in touch</a>
     </header>
 
     <main id="contact">
-      <!-- Optional newsletter or contact form goes here. Replace the Beehiiv
-           iframe src with your own embed link or remove entirely. -->
+      <!-- Newsletter sign‑up form embedded from Beehiiv.  The src points to
+           Studio Blanc’s list, as used on the original teaser. -->
       <div class="notify-container">
         <iframe
           class="beehiiv-iframe"
-          src="https://embeds.beehiiv.com/subscribe?list=YOUR_LIST_ID"
+          src="https://embeds.beehiiv.com/6950dba3-fb7b-4225-92c5-b0306ba1b7b1?slim=true"
           title="Subscribe to our newsletter"
         ></iframe>
       </div>
@@ -51,12 +52,6 @@
       </div>
     </main>
 
-    <!-- Floating navigation bar. Use absolute or relative paths as needed. -->
-    <nav>
-      <a href="/">Home</a>
-      <a href="/portfolio/">Portfolio</a>
-      <a href="/about.html">About</a>
-      <a href="mailto:info@studioblanc.art">Contact</a>
-    </nav>
+    <!-- Navigation bar removed for the teaser site per design choice -->
   </body>
 </html>
