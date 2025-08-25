@@ -7,7 +7,7 @@
   <!-- Import the shared stylesheet so colours and typography match the homepage -->
   <link rel="stylesheet" href="../style.css">
   <style>
-    /* override the homepage header so it doesn’t fill the entire viewport */
+    /* override the homepage header so it doesn't fill the entire viewport */
     header {
       flex: none;
       text-align: center;
@@ -247,8 +247,7 @@
         const im = document.createElement('img');
         im.src = o.s;
         im.alt = o.n;
-        im.style.maxWidth = '100%';
-        im.style.maxHeight = '100%';
+        // Remove inline styles - let CSS handle the viewport scaling
         lbMedia.appendChild(im);
       } else {
         const v = document.createElement('video');
