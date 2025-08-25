@@ -29,14 +29,15 @@
     .tile {
       position: relative;
       overflow: hidden;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      /* no visible card: remove border radius and shadow */
+      border-radius: 0;
+      box-shadow: none;
       cursor: pointer;
       /* remove default button borders/outlines so no black frame appears */
       border: none;
       outline: none;
-      /* use the global background colour for tiles to avoid dark borders */
-      background: var(--bg);
+      /* transparent background so only the media shows */
+      background: transparent;
       /* centre media within the tile */
       display: flex;
       align-items: center;
@@ -76,17 +77,23 @@
     .lightbox.open {
       display: flex;
     }
+    /* the lightbox inner container automatically sizes based on its content
+       and constrains the media to the viewport dimensions. Using max-width
+       and max-height instead of fixed pixel values ensures that very large
+       images or videos will scale down and remain centred in the view. */
     .lb-inner {
       position: relative;
-      width: min(96vw, 1200px);
-      height: min(92vh, 800px);
+      max-width: 96vw;
+      max-height: 96vh;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .lb-media {
-      max-width: 100%;
-      max-height: 100%;
+      max-width: 90vw;
+      max-height: 90vh;
+      width: auto;
+      height: auto;
       border-radius: 12px;
       background: #000;
     }
@@ -212,7 +219,9 @@
       CUR = i;
       render();
       LB.classList.add('open');
-      document.body.style.overflow = 'hidden';
+      // Do not disable page scrolling when the lightbox opens. Allow the
+      // underlying page to remain scrollable. This prevents the browser
+      // from locking the scroll when the lightbox is active.
     }
     function render() {
       const o = ITEMS[CUR];
@@ -226,18 +235,28 @@
         lbMedia.appendChild(im);
       } else {
         const v = document.createElement('video');
+        // Always show playback controls for videos in the lightbox.
         v.controls = true;
+        // Autoplay the video when it is displayed. The muted property is
+        // required by most browsers to allow autoplay without user
+        // interaction. You can remove muted if you prefer sound on load.
+        v.autoplay = true;
+        v.muted = true;
+        v.playsInline = true;
         const s = document.createElement('source');
         s.src = o.s;
         s.type = 'video/mp4';
         v.appendChild(s);
         lbMedia.appendChild(v);
+        // Start playback programmatically to ensure autoplay kicks in on some browsers.
+        // Catch and ignore any promise rejection.
+        v.play().catch(() => {});
       }
       cap.textContent = o.n;
     }
     function closeLB() {
       LB.classList.remove('open');
-      document.body.style.overflow = '';
+      // No need to reset body overflow here since we didn't change it in open().
     }
     function prev() {
       CUR = (CUR - 1 + ITEMS.length) % ITEMS.length;
