@@ -97,6 +97,23 @@
       border-radius: 12px;
       background: #000;
     }
+
+    /* ensure images and videos inside the lightbox scale down to fit within
+       the lightbox container while maintaining their aspect ratio. The
+       object-fit property preserves the entire media without cropping. */
+    .lb-media img,
+    .lb-media video {
+      /* Ensure media within the lightbox never exceed the viewport. By using
+         viewport-relative units (vw and vh) directly here, we scale each
+         image or video to fit within the available screen space regardless
+         of the container size. */
+      max-width: 90vw;
+      max-height: 90vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
     .lb-close,
     .lb-prev,
     .lb-next {
