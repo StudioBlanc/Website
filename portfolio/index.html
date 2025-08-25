@@ -2,191 +2,253 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Project Examples</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Portfolio – Studio Blanc</title>
+  <!-- link to the global stylesheet so the page matches the homepage colours and typography -->
+  <link rel="stylesheet" href="../style.css" />
   <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background-color: #2b2b2b;
-      color: white;
-      box-sizing: border-box;
-    }
-
-    h1 {
-      text-align: center;
-      margin: 20px 0 40px;
-    }
-
+    /* portfolio-specific styles */
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      padding: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
     }
-
-    .grid-item {
-      cursor: pointer;
+    .tile {
+      position: relative;
       overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      background: #000;
     }
-
-    .grid-item img,
-    .grid-item video {
+    .tile img,
+    .tile video {
       width: 100%;
-      height: auto;
-      border-radius: 8px;
+      height: 100%;
+      object-fit: cover;
       display: block;
+      background: #000;
     }
-
-    .lightbox {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.8);
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .lightbox.active {
-      display: flex;
-    }
-
-    .lightbox-content {
-      max-width: 100vw;
-      max-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .lightbox-content img,
-    .lightbox-content video {
-      max-height: 90vh;
-      height: auto;
-      width: auto;
-      max-width: 100vw;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    .nav-arrow {
+    .play-icon {
       position: absolute;
+      right: 12px;
+      bottom: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 50%;
+      font-size: 14px;
+    }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .lightbox.open {
+      display: flex;
+    }
+    .lb-inner {
+      position: relative;
+      width: min(96vw, 1200px);
+      height: min(92vh, 800px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lb-media {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+      background: #000;
+    }
+    .lb-close,
+    .lb-prev,
+    .lb-next {
+      position: absolute;
+      top: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .lb-close {
+      right: 12px;
+    }
+    .lb-prev,
+    .lb-next {
       top: 50%;
       transform: translateY(-50%);
-      font-size: 2rem;
-      color: white;
-      cursor: pointer;
-      padding: 10px;
-      z-index: 1001;
-      user-select: none;
     }
-
-    .nav-arrow.left { left: 10px; }
-    .nav-arrow.right { right: 10px; }
+    .lb-prev {
+      left: 12px;
+    }
+    .lb-next {
+      right: 12px;
+    }
+    .lb-caption {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 12px;
+      color: #ddd;
+      font-size: 13px;
+      text-align: center;
+      opacity: 0.9;
+    }
   </style>
 </head>
 <body>
-  <h1>Project examples</h1>
-  <div class="grid" id="mediaGrid"></div>
-  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-    <div class="nav-arrow left" onclick="prevItem(event)">&#8592;</div>
-    <div class="lightbox-content" id="lightboxContent"></div>
-    <div class="nav-arrow right" onclick="nextItem(event)">&#8594;</div>
+  <header>
+    <h1>Selected works</h1>
+    <p>A curated selection of our latest CGI &amp; VFX projects.</p>
+  </header>
+  <main>
+    <div id="grid" class="grid"></div>
+  </main>
+  <div id="lightbox" class="lightbox">
+    <div class="lb-inner">
+      <button class="lb-close" onclick="closeLB()">×</button>
+      <button class="lb-prev" onclick="prev()">◀</button>
+      <div class="lb-media" id="lb-media"></div>
+      <button class="lb-next" onclick="next()">▶</button>
+      <div class="lb-caption" id="lb-caption"></div>
+    </div>
   </div>
-
+  <nav>
+    <a href="../index.html">Home</a>
+    <a href="./index.html">Portfolio</a>
+  </nav>
   <script>
-    const mediaItems = [
-      { type: 'image', src: 'media/image1.jpg' },
-      { type: 'image', src: 'media/image2.jpg' },
-      { type: 'image', src: 'media/image3.jpg' },
-      
-      { type: 'video', src: 'media/video1.mp4' },
-	  { type: 'image', src: 'media/image8.jpg' },
-	  { type: 'image', src: 'media/image9.jpg' },
-      
-	  { type: 'image', src: 'media/image6.jpg' },
-     
-	  { type: 'image', src: 'media/image5.jpg' },
-      { type: 'image', src: 'media/image7.jpg' },
-      { type: 'image', src: 'media/image8.jpg' },
-	  
-	  { type: 'video', src: 'media/video4.mp4' },
-	  
-	  { type: 'image', src: 'media/image13.jpg' },
-      { type: 'video', src: 'media/video5.mp4' },
-	  { type: 'image', src: 'media/image14.jpg' },
-      { type: 'image', src: 'media/image15.jpg' },
-      { type: 'video', src: 'media/video6.mp4' },
-	  { type: 'image', src: 'media/image10.jpg' },
-	  { type: 'video', src: 'media/video7.mp4' },
-     
-      { type: 'image', src: 'media/image16.jpg' },
-	  { type: 'image', src: 'media/image17.jpg' },
-      { type: 'image', src: 'media/image18.jpg' },
-      { type: 'image', src: 'media/image19.jpg' },
-      { type: 'image', src: 'media/image20.jpg' },
-	  { type: 'image', src: 'media/image4.jpg' },
-	  { type: 'image', src: 'media/image12.jpg' },
-	   { type: 'image', src: 'media/image11.jpg' },
-	    { type: 'video', src: 'media/video3.mp4' },
-	   { type: 'video', src: 'media/video2.mp4' }
-	  
-    ];
-
-    const grid = document.getElementById("mediaGrid");
-    mediaItems.forEach((item, index) => {
-      const div = document.createElement("div");
-      div.className = "grid-item";
-      div.onclick = () => openLightbox(index);
-      div.innerHTML = item.type === "image"
-        ? `<img src="${item.src}" alt="media ${index}">`
-        : `<video src="${item.src}" muted autoplay loop></video>`;
-      grid.appendChild(div);
+    // path to your media folder relative to this page
+    const DIR = '../Portfolio';
+    const MAX = 200, STOP = 10;
+    // probe function to check if an image or video exists
+    const probe = (u, v) => new Promise(resolve => {
+      const el = v ? document.createElement('video') : new Image();
+      if (v) {
+        el.preload = 'metadata';
+        const s = document.createElement('source');
+        s.src = u;
+        s.type = 'video/mp4';
+        el.appendChild(s);
+      }
+      el.onload = el.onloadedmetadata = () => resolve(1);
+      el.onerror = () => resolve(0);
+      // add cache buster to ensure GitHub Pages fetches fresh metadata
+      el.src = u + '?v=' + Date.now();
     });
-
-    let currentIndex = 0;
-
-    function openLightbox(index) {
-      currentIndex = index;
-      renderLightbox();
-      document.getElementById("lightbox").classList.add("active");
+    async function scan() {
+      const list = [], add = (t, s, n) => list.push({ t, s, n });
+      let miss = 0;
+      for (let i = 1; i <= MAX; i++) {
+        if (await probe(`${DIR}/image${i}.jpg`)) {
+          add('img', `${DIR}/image${i}.jpg`, `image${i}`);
+          miss = 0;
+        } else if (++miss >= STOP) break;
+      }
+      miss = 0;
+      for (let i = 1; i <= MAX; i++) {
+        if (await probe(`${DIR}/video${i}.mp4`, 1)) {
+          add('vid', `${DIR}/video${i}.mp4`, `video${i}`);
+          miss = 0;
+        } else if (++miss >= STOP) break;
+      }
+      return list;
     }
-
-    function renderLightbox() {
-      const item = mediaItems[currentIndex];
-      const content = document.getElementById("lightboxContent");
-      content.innerHTML = item.type === "image"
-        ? `<img src="${item.src}" alt="media ${currentIndex}">`
-        : `<video src="${item.src}" controls autoplay></video>`;
+    // state variables
+    let ITEMS = [], CUR = -1;
+    const grid = document.getElementById('grid');
+    const LB = document.getElementById('lightbox');
+    const lbMedia = document.getElementById('lb-media');
+    const cap = document.getElementById('lb-caption');
+    // build the grid of thumbnails
+    function buildGrid(items) {
+      grid.innerHTML = '';
+      items.forEach((o, i) => {
+        const b = document.createElement('button');
+        b.className = 'tile';
+        b.onclick = () => open(i);
+        if (o.t === 'img') {
+          const im = document.createElement('img');
+          im.src = o.s;
+          im.alt = o.n;
+          b.appendChild(im);
+        } else {
+          const v = document.createElement('video');
+          v.muted = true;
+          v.playsInline = true;
+          const s = document.createElement('source');
+          s.src = o.s;
+          s.type = 'video/mp4';
+          v.appendChild(s);
+          b.appendChild(v);
+          const badge = document.createElement('span');
+          badge.className = 'play-icon';
+          badge.textContent = '▶';
+          b.appendChild(badge);
+        }
+        grid.appendChild(b);
+      });
     }
-
-    function closeLightbox(e) {
-      if (e.target.id === 'lightbox' || e.target.classList.contains('nav-arrow')) return;
-      document.getElementById("lightbox").classList.remove("active");
-      document.getElementById("lightboxContent").innerHTML = "";
+    // open the lightbox for the selected item
+    function open(i) {
+      CUR = i;
+      render();
+      LB.classList.add('open');
+      document.body.style.overflow = 'hidden';
     }
-
-    function prevItem(e) {
-      e.stopPropagation();
-      currentIndex = (currentIndex - 1 + mediaItems.length) % mediaItems.length;
-      renderLightbox();
+    // render the current item inside the lightbox
+    function render() {
+      const o = ITEMS[CUR];
+      lbMedia.innerHTML = '';
+      if (o.t === 'img') {
+        const im = document.createElement('img');
+        im.src = o.s;
+        im.alt = o.n;
+        im.style.maxWidth = '100%';
+        im.style.maxHeight = '100%';
+        lbMedia.appendChild(im);
+      } else {
+        const v = document.createElement('video');
+        v.controls = true;
+        const s = document.createElement('source');
+        s.src = o.s;
+        s.type = 'video/mp4';
+        v.appendChild(s);
+        lbMedia.appendChild(v);
+      }
+      cap.textContent = o.n;
     }
-
-    function nextItem(e) {
-      e.stopPropagation();
-      currentIndex = (currentIndex + 1) % mediaItems.length;
-      renderLightbox();
+    function closeLB() {
+      LB.classList.remove('open');
+      document.body.style.overflow = '';
     }
-
-    document.addEventListener("keydown", e => {
-      const isActive = document.getElementById("lightbox").classList.contains("active");
-      if (!isActive) return;
-      if (e.key === "ArrowLeft") prevItem(e);
-      if (e.key === "ArrowRight") nextItem(e);
-      if (e.key === "Escape") closeLightbox(e);
+    function prev() {
+      CUR = (CUR - 1 + ITEMS.length) % ITEMS.length;
+      render();
+    }
+    function next() {
+      CUR = (CUR + 1) % ITEMS.length;
+      render();
+    }
+    document.addEventListener('keydown', e => {
+      if (!LB.classList.contains('open')) return;
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') next();
+      if (e.key === 'Escape') closeLB();
+    });
+    // initialise
+    scan().then(items => {
+      ITEMS = items;
+      buildGrid(ITEMS);
     });
   </script>
 </body>
