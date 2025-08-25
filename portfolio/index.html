@@ -154,8 +154,8 @@
     <div id="grid" class="grid"></div>
   </main>
   <!-- lightbox overlay (no nav buttons on the page) -->
-  <div id="lightbox" class="lightbox">
-    <div class="lb-inner">
+  <div id="lightbox" class="lightbox" onclick="closeLB()">
+    <div class="lb-inner" onclick="event.stopPropagation()">
       <button class="lb-close" onclick="closeLB()">×</button>
       <button class="lb-prev" onclick="prev()">◀</button>
       <div class="lb-media" id="lb-media"></div>
